@@ -1,0 +1,1235 @@
+load('/public/home/zhangjie/DataAnalysis/wxr_toolbox/toolbox_matlab/cbrewer2-master/cbrewer2/colorbrewer.mat', 'colorbrewer');
+UKB_Outcomes_2_0 = readtable('/public/home/zhangjie/UKB_Outcomes_2_0.csv');
+UKB_Lifestyle_0_0 = readtable('/public/home/zhangjie/UKB_Lifestyle_MRI_0_0.csv');
+Yeo7Names = {'Visual';'Somatomotor';'DorsalAttention';'VentralAttention';'Limbic';'Frontoparietal';'Default'};
+
+UKB_Lifestyle_0_0.x1160_L = double(UKB_Lifestyle_0_0.x1160 >= 9);
+UKB_Lifestyle_0_0.x1160_S = double(UKB_Lifestyle_0_0.x1160 < 6);
+UKB_Lifestyle_0_0.x1160_S(isnan(UKB_Lifestyle_0_0.x1160)) = NaN;
+UKB_Lifestyle_0_0.x1160_L(isnan(UKB_Lifestyle_0_0.x1160)) = NaN;
+UKB_Lifestyle_0_0 = removevars(UKB_Lifestyle_0_0, 'x1160');
+x709 = UKB_Lifestyle_0_0.x709;
+UKB_Lifestyle_0_0.x709 = double(UKB_Lifestyle_0_0.x709 == 1);
+UKB_Lifestyle_0_0.x709(isnan(x709)) = NaN;
+UKB_Lifestyle_0_0 = removevars(UKB_Lifestyle_0_0, {'x1289','x1299','x1309','x1319','x1329','x1339','x1349','x1369','x1379','x1389','x1438','x1448','x1458'});
+UKB_Lifestyle_0_0 = removevars(UKB_Lifestyle_0_0, {'x1568','x1578','x1588','x1598','x1608'});
+UKB_Lifestyle_0_0 = innerjoin(UKB_Lifestyle_0_0,UKB_Diet_0_0);
+UKB_Outcomes_2_0 = removevars(UKB_Outcomes_2_0, 'x20012');
+
+load('/public/home/zhangjie/ZJLab/UKBiobank_Project/project/Detecting_Compensation_Effects_of_Aging_Using_PID/data/atlas/HCPMMP_atlas_info.mat', 'Yeo7MMP')
+load('/public/home/zhangjie/ZJLab/UKBiobank_Project/project/Structure_Function_Coupling_Aging/ukb_glasser_scfcc_2_0_streamline_count_30TR.mat', 'SCDFCC_Mean', 'SCDFCC_SD', 'common_eid')
+SFC_7n = netMean1D(SCDFCC_Mean,Yeo7MMP);
+DSFC_7n = netMean1D(SCDFCC_SD,Yeo7MMP);
+
+brain_data_7n = [array2table(common_eid),array2table(SFC_7n),array2table(DSFC_7n)];
+brain_data_7n.Properties.VariableNames{1} = 'eid';
+brain_data_360p = [array2table(common_eid),array2table(SCDFCC_Mean),array2table(SCDFCC_SD)];
+brain_data_360p.Properties.VariableNames{1} = 'eid';
+
+load('/public/home/zhangjie/ZJLab/UKBiobank_Project/project/Structure_Function_Coupling_Aging/ukb_glasser_scfcc_2_0_streamline_count_40TR.mat', 'SCDFCC_Mean', 'SCDFCC_SD', 'common_eid')
+SFC_7n_40TR = netMean1D(SCDFCC_Mean,Yeo7MMP);
+DSFC_7n_40TR = netMean1D(SCDFCC_SD,Yeo7MMP);
+
+brain_data_7n_40TR = [array2table(common_eid),array2table(SFC_7n_40TR),array2table(DSFC_7n_40TR)];
+brain_data_7n_40TR.Properties.VariableNames{1} = 'eid';
+brain_data_360p_40TR = [array2table(common_eid),array2table(SCDFCC_Mean),array2table(SCDFCC_SD)];
+brain_data_360p_40TR.Properties.VariableNames{1} = 'eid';
+
+load('/public/home/zhangjie/ZJLab/UKBiobank_Project/project/Structure_Function_Coupling_Aging/ukb_glasser_scfcc_2_0_streamline_count_50TR.mat', 'SCDFCC_Mean', 'SCDFCC_SD', 'common_eid')
+SFC_7n_50TR = netMean1D(SCDFCC_Mean,Yeo7MMP);
+DSFC_7n_50TR = netMean1D(SCDFCC_SD,Yeo7MMP);
+
+brain_data_7n_50TR = [array2table(common_eid),array2table(SFC_7n_40TR),array2table(DSFC_7n_50TR)];
+brain_data_7n_50TR.Properties.VariableNames{1} = 'eid';
+brain_data_360p_50TR = [array2table(common_eid),array2table(SCDFCC_Mean),array2table(SCDFCC_SD)];
+brain_data_360p_50TR.Properties.VariableNames{1} = 'eid';
+
+parfor i = 1:size(brain_data_7n,1)
+    [r_SFC(i,1),p_SFC(i,1)] = corr(brain_data_360p{i,2:361}',brain_data_360p_40TR{i,2:361}');
+    [r_DSFC(i,1),p_DSFC(i,1)] = corr(brain_data_360p{i,362:721}',brain_data_360p_40TR{i,362:721}');
+    disp(num2str(i))
+end
+
+[r_7n, p_7n] = corr(brain_data_7n{:,2:15}, brain_data_7n_40TR{:,2:15},'Rows','pairwise');
+
+id = ~isnan(r_SFC);
+nanmean(r_SFC(id))
+mean(p_SFC(id)<0.05)
+
+id = ~isnan(r_DSFC);
+nanmean(r_DSFC(id))
+mean(p_DSFC(id)<0.05)
+
+Yeo7Colormap = [0.471,0.0710,0.522;0.275,0.510,0.706;0,0.463,0.0550;...
+    0.769,0.224,0.976;0.863,0.973,0.639;0.902,0.576,0.129;0.804,0.239,0.306];
+Yeo7Names2 = {'VN','SMN','DAN','VAN','LN','FPN','DMN'};
+
+averaged_DSFC = nanmean(brain_data_360p{:,362:721},1);
+averaged_SFC = nanmean(brain_data_360p{:,2:361},1);
+averaged_DSFC_40TR = nanmean(brain_data_360p_40TR{:,362:721},1);
+averaged_SFC_40TR = nanmean(brain_data_360p_40TR{:,2:361},1);
+
+averaged_DSFC_50TR = nanmean(brain_data_360p_50TR{:,362:721},1);
+averaged_SFC_50TR = nanmean(brain_data_360p_50TR{:,2:361},1);
+
+figure;
+
+% Subplot 1: Scatter plot with colormap and black fit line
+subplot(2,3,1);
+scatter(averaged_SFC, averaged_SFC_40TR, 10, Yeo7MMP, 'filled');
+colormap(Yeo7Colormap);
+title('SFC');
+hold on;
+p1 = polyfit(averaged_SFC, averaged_SFC_40TR, 1); % Linear fit
+f1 = polyval(p1, averaged_SFC);
+plot(averaged_SFC, f1, 'k-', 'LineWidth', 1); % Black fit line
+hold off;
+
+% Subplot 2: Histogram with black mean vertical line
+subplot(2,3,2);
+histogram(r_SFC, 50);
+title('SFC');
+hold on;
+mean_val_SFC = nanmean(r_SFC);
+xline(mean_val_SFC, 'k', 'LineWidth', 1); % Black vertical line at the mean
+hold off;
+
+% Subplot 4: Scatter plot with colormap and black fit line
+subplot(2,3,4);
+scatter(averaged_DSFC, averaged_DSFC_40TR, 10, Yeo7MMP, 'filled');
+colormap(Yeo7Colormap);
+hold on;
+p2 = polyfit(averaged_DSFC, averaged_DSFC_40TR, 1); % Linear fit
+f2 = polyval(p2, averaged_DSFC);
+plot(averaged_DSFC, f2, 'k-', 'LineWidth', 1); % Black fit line
+hold off;
+title('DSFC');
+
+% Subplot 5: Histogram with black mean vertical line
+subplot(2,3,5);
+histogram(r_DSFC, 50);
+title('DSFC');
+hold on;
+mean_val_DSFC = nanmean(r_DSFC);
+xline(mean_val_DSFC, 'k', 'LineWidth', 1); % Black vertical line at the mean
+hold off;
+
+% Subplot 3: Heatmap with custom colormap (using heatmap function)
+subplot(2,3,3);
+[corr_matrix, p_matrix] = corr(brain_data_7n{:,2:8}, brain_data_7n_40TR{:,2:8}, 'Rows', 'pairwise');
+ICC = [diag(corr_matrix),diag(p_matrix)];
+h3 = heatmap(Yeo7Names2, Yeo7Names2, corr_matrix, 'ColorbarVisible', 'on', 'Colormap', hot(100)); % Using heatmap function
+h3.XLabel = 'SFC';
+h3.YLabel = 'SFC';
+h3.Title = 'Correlation Heatmap';
+
+% Subplot 6: Heatmap with custom colormap (using heatmap function)
+subplot(2,3,6);
+[corr_matrix_2, p_matrix_2] = corr(brain_data_7n{:,9:15}, brain_data_7n_40TR{:,9:15}, 'Rows', 'pairwise');
+ICC = [diag(corr_matrix_2),diag(p_matrix_2)];
+h6 = heatmap(Yeo7Names2, Yeo7Names2, corr_matrix_2, 'ColorbarVisible', 'on', 'Colormap', hot(100)); % Using heatmap function
+h6.XLabel = 'DSFC';
+h6.YLabel = 'DSFC';
+h6.Title = 'Correlation Heatmap';
+
+
+load('/public/home/zhangjie/ZJLab/UKBiobank_Project/project/Structure_Function_Coupling_Aging/ukb_Scheafer7n200p_scfcc_2_0_streamline_count.mat', 'SCDFCC_Mean', 'SCDFCC_SD', 'common_eid')
+
+Scheafer200p_7Network = readtable('/home1/zhangjie/ZJLab/UKBiobank_Project/data/imaging/atlas/Scheafer200p_7Network.csv');
+
+SFC_7n_Scheafer = netMean1D(SCDFCC_Mean,Scheafer200p_7Network.NetworkID);
+DSFC_7n_Scheafer = netMean1D(SCDFCC_SD,Scheafer200p_7Network.NetworkID);
+
+brain_data_7n_Scheafer = [array2table(common_eid),array2table(SFC_7n_Scheafer),array2table(DSFC_7n_Scheafer)];
+brain_data_7n_Scheafer.Properties.VariableNames{1} = 'eid';
+brain_data_200p_Scheafer = [array2table(common_eid),array2table(SCDFCC_Mean),array2table(SCDFCC_SD)];
+brain_data_200p_Scheafer.Properties.VariableNames{1} = 'eid';
+
+[s2f,f2s] = idFinderNum(brain_data_360p.eid,brain_data_200p_Scheafer.eid);
+
+[r_7n, p_7n] = corr(brain_data_7n{s2f,2:15}, brain_data_7n_Scheafer{f2s,2:15},'Rows','pairwise');
+
+
+Yeo7Colormap = [0.471,0.0710,0.522;0.275,0.510,0.706;0,0.463,0.0550;...
+    0.769,0.224,0.976;0.863,0.973,0.639;0.902,0.576,0.129;0.804,0.239,0.306];
+Yeo7Names2 = {'VN','SMN','DAN','VAN','LN','FPN','DMN'};
+
+averaged_DSFC = nanmean(brain_data_360p{:,362:721},1);
+averaged_SFC = nanmean(brain_data_360p{:,2:361},1);
+averaged_DSFC_Scheafer = nanmean(brain_data_200p_Scheafer{:,202:401},1);
+averaged_SFC_Scheafer = nanmean(brain_data_200p_Scheafer{:,2:201},1);
+
+[r p] = corr(parcel_to_surface(averaged_SFC([181:360,1:180]),'glasser_360_fsa5')',parcel_to_surface(averaged_SFC_Scheafer,'schaefer_200_fsa5')')
+X = zscore(averaged_SFC_Scheafer);[a, cb] = plot_cortical(parcel_to_surface(X,'schaefer_200_fsa5'),'color_range',[-2.7,2.7]);
+
+figure;
+scatter(parcel_to_surface(averaged_SFC([181:360,1:180]),'glasser_360_fsa5'), parcel_to_surface(averaged_SFC_Scheafer,'schaefer_200_fsa5'), 30, [0.5, 0.5, 0.5], 'filled', 'MarkerFaceAlpha', 0.3) % 半透明灰色
+hold on;
+p1 = polyfit(parcel_to_surface(averaged_SFC([181:360,1:180]),'glasser_360_fsa5')', parcel_to_surface(averaged_SFC_Scheafer,'schaefer_200_fsa5')', 1); % Linear fit
+f1 = polyval(p1, parcel_to_surface(averaged_SFC([181:360,1:180]),'glasser_360_fsa5')');
+plot(parcel_to_surface(averaged_SFC([181:360,1:180]),'glasser_360_fsa5')', f1, 'k-', 'LineWidth', 1); % Black fit line
+ylim([0, 0.25]);
+xlim([0, 0.25]);
+hold off;
+
+
+[corr_matrix, p_matrix] = corr(brain_data_7n{s2f,2:8}, brain_data_7n_Scheafer{f2s,2:8}, 'Rows', 'pairwise');
+ICC = [diag(corr_matrix),diag(p_matrix)];
+h3 = heatmap(Yeo7Names2, Yeo7Names2, corr_matrix, 'ColorbarVisible', 'on', 'Colormap', hot(100)); % Using heatmap function
+h3.XLabel = 'SFC';
+h3.YLabel = 'DSFC';
+h3.Title = 'Correlation Heatmap';
+
+
+[r p] = corr(parcel_to_surface(averaged_DSFC([181:360,1:180]),'glasser_360_fsa5')',parcel_to_surface(averaged_DSFC_Scheafer,'schaefer_200_fsa5')')
+X = zscore(averaged_DSFC_Scheafer);[a, cb] = plot_cortical(parcel_to_surface(X,'schaefer_200_fsa5'),'color_range',[-2.7,2.7]);
+
+figure;
+scatter(parcel_to_surface(averaged_DSFC([181:360,1:180]),'glasser_360_fsa5'), parcel_to_surface(averaged_DSFC_Scheafer,'schaefer_200_fsa5'), 30, [0.5, 0.5, 0.5], 'filled', 'MarkerFaceAlpha', 0.3) % 半透明灰色
+hold on;
+p1 = polyfit(parcel_to_surface(averaged_DSFC([181:360,1:180]),'glasser_360_fsa5')', parcel_to_surface(averaged_DSFC_Scheafer,'schaefer_200_fsa5')', 1); % Linear fit
+f1 = polyval(p1, parcel_to_surface(averaged_DSFC([181:360,1:180]),'glasser_360_fsa5')');
+plot(parcel_to_surface(averaged_DSFC([181:360,1:180]),'glasser_360_fsa5')', f1, 'k-', 'LineWidth', 1); % Black fit line
+ylim([0.07, 0.14]);
+xlim([0.06, 0.12]);
+hold off;
+
+[corr_matrix, p_matrix] = corr(brain_data_7n{s2f,9:15}, brain_data_7n_Scheafer{f2s,9:15}, 'Rows', 'pairwise');
+ICC = [diag(corr_matrix),diag(p_matrix)];
+h3 = heatmap(Yeo7Names2, Yeo7Names2, corr_matrix, 'ColorbarVisible', 'on', 'Colormap', hot(100)); % Using heatmap function
+h3.XLabel = 'SFC';
+h3.YLabel = 'DSFC';
+h3.Title = 'Correlation Heatmap';
+
+load('/public/home/zhangjie/ZJLab/UKBiobank_Project/project/Structure_Function_Coupling_Aging/ukb_glasser_scfcc_2_0_mean_FA.mat', 'SCDFCC_Mean', 'SCDFCC_SD', 'common_eid')
+SFC_7n_FA = netMean1D(SCDFCC_Mean,Yeo7MMP);
+DSFC_7n_FA = netMean1D(SCDFCC_SD,Yeo7MMP);
+
+brain_data_7n_FA = [array2table(common_eid),array2table(SFC_7n_FA),array2table(DSFC_7n_FA)];
+brain_data_7n_FA.Properties.VariableNames{1} = 'eid';
+brain_data_360p_FA = [array2table(common_eid),array2table(SCDFCC_Mean),array2table(SCDFCC_SD)];
+brain_data_360p_FA.Properties.VariableNames{1} = 'eid';
+
+averaged_DSFC = nanmean(brain_data_360p{:,362:721},1);
+averaged_SFC = nanmean(brain_data_360p{:,2:361},1);
+scatter(averaged_SFC, averaged_DSFC, 5, Yeo7MMP, 'filled')
+scatter(averaged_SFC, averaged_DSFC, 20, Yeo7MMP, 'filled')
+Yeo7Colormap = [0.471,0.0710,0.522;0.275,0.510,0.706;0,0.463,0.0550;...
+    0.769,0.224,0.976;0.863,0.973,0.639;0.902,0.576,0.129;0.804,0.239,0.306];
+colormap(Yeo7Colormap)
+scatter(averaged_SFC, averaged_DSFC, 50, Yeo7MMP, 'filled')
+colormap(Yeo7Colormap)
+scatter(netMean1D(averaged_SFC,Yeo7MMP), netMean1D(averaged_DSFC,Yeo7MMP), 500, 1:7, 'filled')
+xlim([0, 0.25]);
+ylim([0.06, 0.12]);
+Corr_matrix = corr(SCDFCC_Mean, SCDFCC_SD,'Rows','pairwise');
+
+
+Yeo7Names2 = {'VN','SMN','DAN','VAN','LN','FPN','DMN'};
+Yeo7Colormap = [0.471,0.0710,0.522;0.275,0.510,0.706;0,0.463,0.0550;...
+    0.769,0.224,0.976;0.863,0.973,0.639;0.902,0.576,0.129;0.804,0.239,0.306];
+
+averaged_DSFC_FA = nanmean(brain_data_360p_FA{:,362:721},1);
+averaged_SFC_FA = nanmean(brain_data_360p_FA{:,2:361},1);
+
+
+parfor i = 1:size(brain_data_360p,1)
+    [r_SFC(i,1),p_SFC(i,1)] = corr(brain_data_360p{i,2:361}',brain_data_360p_FA{i,2:361}');
+    [r_DSFC(i,1),p_DSFC(i,1)] = corr(brain_data_360p{i,362:721}',brain_data_360p_FA{i,362:721}');
+    disp(num2str(i))
+end
+
+
+figure;
+
+% Subplot 1: Scatter plot with colormap and black fit line
+subplot(2,3,1);
+scatter(averaged_SFC, averaged_SFC_FA, 10, Yeo7MMP, 'filled');
+colormap(Yeo7Colormap);
+title('SFC');
+hold on;
+p1 = polyfit(averaged_SFC, averaged_SFC_FA, 1); % Linear fit
+f1 = polyval(p1, averaged_SFC);
+plot(averaged_SFC, f1, 'k-', 'LineWidth', 1); % Black fit line
+hold off;
+
+% Subplot 2: Histogram with black mean vertical line
+subplot(2,3,2);
+histogram(r_SFC, 50);
+title('SFC');
+hold on;
+mean_val_SFC = nanmean(r_SFC);
+xline(mean_val_SFC, 'k', 'LineWidth', 1); % Black vertical line at the mean
+hold off;
+
+% Subplot 4: Scatter plot with colormap and black fit line
+subplot(2,3,4);
+scatter(averaged_DSFC, averaged_DSFC_FA, 10, Yeo7MMP, 'filled');
+colormap(Yeo7Colormap);
+hold on;
+p2 = polyfit(averaged_DSFC, averaged_DSFC_FA, 1); % Linear fit
+f2 = polyval(p2, averaged_DSFC);
+plot(averaged_DSFC, f2, 'k-', 'LineWidth', 1); % Black fit line
+hold off;
+title('DSFC');
+
+% Subplot 5: Histogram with black mean vertical line
+subplot(2,3,5);
+histogram(r_DSFC, 50);
+title('DSFC');
+hold on;
+mean_val_DSFC = nanmean(r_DSFC);
+xline(mean_val_DSFC, 'k', 'LineWidth', 1); % Black vertical line at the mean
+hold off;
+
+% Subplot 3: Heatmap with custom colormap (using heatmap function)
+subplot(2,3,3);
+[corr_matrix, p_matrix] = corr(brain_data_7n{:,2:8}, brain_data_7n_FA{:,2:8}, 'Rows', 'pairwise');
+ICC = [diag(corr_matrix),diag(p_matrix)];
+h3 = heatmap(Yeo7Names2, Yeo7Names2, corr_matrix, 'ColorbarVisible', 'on', 'Colormap', hot(100)); % Using heatmap function
+h3.XLabel = 'SFC';
+h3.YLabel = 'DSFC';
+h3.Title = 'Correlation Heatmap';
+
+% Subplot 6: Heatmap with custom colormap (using heatmap function)
+subplot(2,3,6);
+[corr_matrix_2, p_matrix_2] = corr(brain_data_7n{:,9:15}, brain_data_7n_FA{:,9:15}, 'Rows', 'pairwise');
+ICC = [diag(corr_matrix_2),diag(p_matrix_2)];
+h6 = heatmap(Yeo7Names2, Yeo7Names2, corr_matrix_2, 'ColorbarVisible', 'on', 'Colormap', hot(100)); % Using heatmap function
+h6.XLabel = 'SFC';
+h6.YLabel = 'DSFC';
+h6.Title = 'Correlation Heatmap';
+
+[r p] = corr(averaged_SFC', averaged_SFC_FA')
+[r p] = corr(averaged_DSFC', averaged_DSFC_FA')
+
+%% Averaged Pattern Decoding
+CytoColor = [110,45,125;73,104,153;180,210,143;240,204,49;240,233,61]./255;
+Yeo7Colormap = [0.471,0.0710,0.522;0.275,0.510,0.706;0,0.463,0.0550;...
+    0.769,0.224,0.976;0.863,0.973,0.639;0.902,0.576,0.129;0.804,0.239,0.306];
+
+CytoName = {'Agranular','Frontal','Parietal','Polar','Granular'};
+Yeo7Names2 = {'VN','SMN','DAN','VAN','LN','FPN','DMN'};
+
+% Cytoarchitectonics 
+%  i) agranular (purple; thick with large cells but sparse layers II and IV) 
+%  ii) frontal (blue; thick but not rich in cellular substance, visible layers II and IV)
+%  iii) parietal (green; thick and rich in cells with dense layers II and IV but small and slender pyramidal cells)
+%  iv) polar (orange; thin but rich in cells, particularly in granular layers)
+%  v) granular or koniocortex (yellow; thin but rich in smalls cells, even in layer IV, and a rarified layer V).
+CytoAtlas   = dlmread(['economo_koskinas_fsa5.csv']);
+GlasserAtlas   = dlmread(['glasser_360_fsa5.csv']);
+
+for i = 1:360
+    for j = 1:6
+        dice_matrix(i,j) = dice(GlasserAtlas==i,CytoAtlas==j);
+    end
+end
+for i = 1:360
+    MMP2Cyto(i,1) = find(dice_matrix(i,:) == max(dice_matrix(i,:)));
+end
+
+figure;
+subplot(2,2,1);b1 = bar(netMean1D(averaged_SFC,Yeo7MMP));
+xticks(1:7); xticklabels(Yeo7Names2); xtickangle(90);ylim([.03,.15]);
+b1.FaceColor = 'flat'; 
+b1.CData = Yeo7Colormap;
+subplot(2,2,2);b1 = bar(netMean1D(averaged_SFC,MMP2Cyto));
+xticks(1:5); xticklabels(CytoName); xtickangle(90);ylim([.03,.15]);
+b1.FaceColor = 'flat'; 
+b1.CData = CytoColor;
+subplot(2,2,3);b1 = bar(netMean1D(averaged_DSFC,Yeo7MMP));
+xticks(1:7); xticklabels(Yeo7Names2); xtickangle(90);ylim([.05,.1]);
+b1.FaceColor = 'flat'; 
+b1.CData = Yeo7Colormap;
+subplot(2,2,4);b1 = bar(netMean1D(averaged_DSFC,MMP2Cyto));
+xticks(1:5); xticklabels(CytoName); xtickangle(90);ylim([.05,.1]);
+b1.FaceColor = 'flat'; 
+b1.CData = CytoColor;
+
+Yeo17Names = {'VisualA';'VisualB';'SomatomotorA';'SomatomotorB';'DorsalAttentionA';'DorsalAttentionB';'SalienceA';...
+    'SalienceB';'LimbicA';'LimbicB';'ControlC';'ControlA';'ControlB';'TemporalParietal';'DefaultC';'DefaultA';...
+    'DefaultB'};
+
+figure;
+subplot(2,1,1);b1 = bar(netMean1D(averaged_SFC,Yeo17MMP));
+xticks(1:17); xticklabels(Yeo17Names); xtickangle(90);ylim([0,.17]);
+b1.FaceColor = 'flat'; 
+b1.CData = rsn17cmap(2:18,:);
+subplot(2,1,2);b1 = bar(netMean1D(averaged_DSFC,Yeo17MMP));
+xticks(1:17); xticklabels(Yeo17Names); xtickangle(90);ylim([.05,.11]);
+b1.FaceColor = 'flat'; 
+b1.CData = rsn17cmap(2:18,:);
+
+Yeo17Names = {'VisualA';'VisualB';'SomatomotorA';'SomatomotorB';'DorsalAttentionA';'DorsalAttentionB';'SalienceA';...
+    'SalienceB';'LimbicA';'LimbicB';'ControlC';'ControlA';'ControlB';'TemporalParietal';'DefaultC';'DefaultA';...
+    'DefaultB'};
+
+figure;
+subplot(2,1,1);b1 = bar(netMean1D(averaged_SFC,cole12_netkey));
+xticks(1:12); xticklabels(cole12_name); xtickangle(90);ylim([0,.15]);
+b1.FaceColor = 'flat'; 
+b1.CData = cole12_color;
+subplot(2,1,2);b1 = bar(netMean1D(averaged_DSFC,cole12_netkey));
+xticks(1:12); xticklabels(cole12_name); xtickangle(90);ylim([.07,.1]);
+b1.FaceColor = 'flat'; 
+b1.CData = cole12_color;
+
+%% Phenotype Association
+UKB_BrainMRICov = readtable('/public/home/zhangjie/ZJLab/UKBiobank_Project/data/table/UKB_BrainMRICov.txt');
+load('/public/home/zhangjie/ZJLab/UKBiobank_Project/project/Structure_Function_Coupling_Aging/ukb_glasser_scdfc_3_0_streamline_count.mat')
+SFC_7n_3_0 = netMean1D(SCFCC_Mean_3_0,Yeo7MMP);
+DSFC_7n_3_0 = netMean1D(SCFCC_SD_3_0,Yeo7MMP);
+
+brain_data_7n_3_0 = [array2table(common_eid_3_0),array2table(SFC_7n_3_0),array2table(DSFC_7n_3_0)];
+brain_data_7n_3_0.Properties.VariableNames{1} = 'eid';
+brain_data_360p_3_0 = [array2table(common_eid_3_0),array2table(SCFCC_Mean_3_0),array2table(SCFCC_SD_3_0)];
+brain_data_360p_3_0.Properties.VariableNames{1} = 'eid';
+
+UKB_BrainMRICov_2_0 = UKB_BrainMRICov(:,[1,find(contains(UKB_BrainMRICov.Properties.VariableNames,'_2_0'))]);
+UKB_BrainMRICov_3_0 = UKB_BrainMRICov(:,[1,find(contains(UKB_BrainMRICov.Properties.VariableNames,'_3_0'))]);
+UKB_BrainMRICov_2_0 = removevars(UKB_BrainMRICov_2_0, {'EduAge_2_0','BirthWeight_2_0','EduYr_2_0'});
+UKB_BrainMRICov_2_0 = removevars(UKB_BrainMRICov_2_0, 'Handedness_2_0');
+
+UKB_BrainMRICov_2_0.Properties.VariableNames = strrep(UKB_BrainMRICov_2_0.Properties.VariableNames,'_2_0','');
+UKB_BrainMRICov_3_0.Properties.VariableNames = strrep(UKB_BrainMRICov_3_0.Properties.VariableNames,'_3_0','');
+
+UKB_BrainXY_2_0 = innerjoin(UKB_BrainMRICov_2_0,brain_data_360p);
+UKB_BrainXY_2_0(UKB_BrainXY_2_0.HeadMotion>0.2,:) = [];
+UKB_BrainXY_3_0 = innerjoin(UKB_BrainMRICov_3_0,brain_data_360p_3_0);
+UKB_BrainXY_3_0(UKB_BrainXY_3_0.HeadMotion>0.2,:) = [];
+
+newNames = strcat('x', string(1:720));
+UKB_BrainXY_2_0.Properties.VariableNames(22:end) = cellstr(newNames);
+UKB_BrainXY_3_0.Properties.VariableNames(22:end) = cellstr(newNames);
+UKB_BrainXY_2_0 = removevars(UKB_BrainXY_2_0, 'CigarettesNum');
+UKB_BrainXY_3_0 = removevars(UKB_BrainXY_3_0, 'CigarettesNum');
+
+
+
+UKB_Basic = readtable('/public/home/zhangjie/ZJLab/UKBiobank_Project/data/table/UKB_Basic.csv','TreatAsEmpty','NA');
+UKB_BrainXY_Long = [UKB_BrainXY_2_0;UKB_BrainXY_3_0];
+UKB_BrainXY_Long = innerjoin(UKB_Basic(:,[1,2,5,59:62]),UKB_BrainXY_Long);
+
+
+formula = ['Sex_0_0+BMI+HeadMotion+SNR+',...
+    'Race_1+Race_2+Race_3+Race_4+Vol_WB_TIV+(1|eid)+(1|Centre_0_0)'];
+XList = {'AgeAttend'};
+results_age_360p_Long = LMM_with_EffectSizes_Full(UKB_BrainXY_Long,formula,XList,newNames);
+
+
+
+UKB_BrainXY_2_0 = innerjoin(UKB_BrainMRICov_2_0,brain_data_7n);
+UKB_BrainXY_2_0(UKB_BrainXY_2_0.HeadMotion>0.2,:) = [];
+UKB_BrainXY_3_0 = innerjoin(UKB_BrainMRICov_3_0,brain_data_7n_3_0);
+UKB_BrainXY_3_0(UKB_BrainXY_3_0.HeadMotion>0.2,:) = [];
+
+newNames = strcat('x', string(1:14));
+UKB_BrainXY_2_0.Properties.VariableNames(22:end) = cellstr(newNames);
+UKB_BrainXY_3_0.Properties.VariableNames(22:end) = cellstr(newNames);
+UKB_BrainXY_2_0 = removevars(UKB_BrainXY_2_0, 'CigarettesNum');
+UKB_BrainXY_3_0 = removevars(UKB_BrainXY_3_0, 'CigarettesNum');
+
+UKB_BrainXY_Long = [UKB_BrainXY_2_0;UKB_BrainXY_3_0];
+UKB_BrainXY_Long = innerjoin(UKB_Basic(:,[1,2,5,59:62]),UKB_BrainXY_Long);
+formula = ['Sex_0_0+BMI+HeadMotion+SNR+',...
+    'Race_1+Race_2+Race_3+Race_4+Vol_WB_TIV+(1|eid)+(1|Centre_0_0)'];
+XList = {'AgeAttend'};
+results_age_7n_Long = LMM_with_EffectSizes_Full(UKB_BrainXY_Long,formula,XList,newNames);
+
+
+
+
+UKB_BrainXY = innerjoin(innerjoin(UKB_Lifestyle_0_0,UKB_Outcomes_2_0),brain_data_360p);
+UKB_BrainXY(UKB_BrainXY.HeadMotion_2_0>0.2,:) = [];
+YList = brain_data_360p.Properties.VariableNames(2:end)'; % Y.Properties.RedSyniableNames(2:end)';
+XList = {'x20016','x4526','x2178'}';
+results_pheno_360p = LMM_with_EffectSizes_Full(UKB_BrainXY,formula,XList,YList);
+results_pheno_adult_360p = LMM_with_EffectSizes_Full(UKB_BrainXY(UKB_BrainXY.AgeAttend_2_0<65,:),formula,XList,YList);
+results_pheno_older_360p = LMM_with_EffectSizes_Full(UKB_BrainXY(UKB_BrainXY.AgeAttend_2_0>=65,:),formula,XList,YList);
+
+
+% 7 networks
+UKB_BrainXY = innerjoin(innerjoin(UKB_Lifestyle_0_0,UKB_Outcomes_2_0),brain_data_7n);
+UKB_BrainXY(UKB_BrainXY.HeadMotion_2_0>0.2,:) = [];
+YList = brain_data_7n.Properties.VariableNames(2:end)'; 
+
+formula = ['Sex_0_0+BMI_2_0+HeadMotion_2_0+SNR_2_0+',...
+    'Race_1+Race_2+Race_3+Race_4+Vol_WB_TIV_2_0+(1|Centre_0_0)'];
+XList = {'AgeAttend_2_0'};
+results_age_7n = LMM_with_EffectSizes_Full(UKB_BrainXY,formula,XList,YList);
+formula = ['AgeAttend_2_0+BMI_2_0+HeadMotion_2_0+SNR_2_0+',...
+    'Race_1+Race_2+Race_3+Race_4+Vol_WB_TIV_2_0+(1|Centre_0_0)'];
+XList = {'Sex_0_0'};
+results_sex_7n = LMM_with_EffectSizes_Full(UKB_BrainXY,formula,XList,YList);
+formula = ['Sex_0_0+AgeAttend_2_0+HeadMotion_2_0+SNR_2_0+',...
+    'Race_1+Race_2+Race_3+Race_4+Vol_WB_TIV_2_0+(1|Centre_0_0)'];
+XList = {'BMI_2_0'};
+results_bmi_7n = LMM_with_EffectSizes_Full(UKB_BrainXY,formula,XList,YList);
+formula = ['Sex_0_0+AgeAttend_2_0+BMI_2_0+HeadMotion_2_0+SNR_2_0+',...
+    'Race_1+Race_2+Race_3+Race_4+(1|Centre_0_0)'];
+XList = {'Vol_WB_TIV_2_0'};
+results_tiv_7n = LMM_with_EffectSizes_Full(UKB_BrainXY,formula,XList,YList);
+results_demo_7n = [results_age_7n;results_sex_7n;results_bmi_7n;results_tiv_7n];
+
+
+
+% 360p
+
+
+
+UKB_BrainXY = innerjoin(innerjoin(UKB_Lifestyle_0_0,UKB_Outcomes_2_0),brain_data_360p);
+UKB_BrainXY(UKB_BrainXY.HeadMotion_2_0>0.2,:) = [];
+YList = [brain_data_360p.Properties.VariableNames(2:end)']; 
+
+
+formula = ['AgeAttend_2_0^2+Sex_0_0+BMI_2_0+HeadMotion_2_0+',...
+    'Race_1+Race_2+Race_3+Race_4+Vol_WB_TIV_2_0+(1|Centre_0_0)'];
+XList = {'AgeAttend_2_0'};
+results_age_360p = LMM_with_EffectSizes_Full(UKB_BrainXY,formula,XList,YList);
+
+
+UKB_BrainXY.AgeAttend_2_0_Sq = zscore(UKB_BrainXY.AgeAttend_2_0).^2;
+formula = ['AgeAttend_2_0+Sex_0_0+BMI_2_0+HeadMotion_2_0+',...
+    'Race_1+Race_2+Race_3+Race_4+Vol_WB_TIV_2_0+(1|Centre_0_0)'];
+XList = {'AgeAttend_2_0_Sq'};
+results_age2_360p = LMM_with_EffectSizes_Full(UKB_BrainXY,formula,XList,YList);
+
+
+
+
+formula = ['AgeAttend_2_0+AgeAttend_2_0^2+BMI_2_0+HeadMotion_2_0+SNR_2_0+',...
+    'Race_1+Race_2+Race_3+Race_4+Vol_WB_TIV_2_0+(1|Centre_0_0)'];
+XList = {'Sex_0_0'};
+results_sex_360p = LMM_with_EffectSizes_Full(UKB_BrainXY,formula,XList,YList);
+
+formula = ['AgeAttend_2_0+AgeAttend_2_0^2+Sex_0_0+BMI_2_0+HeadMotion_2_0+SNR_2_0+',...
+    'Race_1+Race_2+Race_3+Race_4+Vol_WB_TIV_2_0+(1|Centre_0_0)'];
+XList = {'Sex_0_0:AgeAttend_2_0'};
+results_interact_360p = LMM_with_EffectSizes_Full(UKB_BrainXY,formula,XList,YList);
+
+XList = {'Sex_0_0'};
+results_sex_360p_adult = LMM_with_EffectSizes_Full(UKB_BrainXY(UKB_BrainXY.AgeAttend_2_0<65,:),formula,XList,YList);
+results_sex_360p_older = LMM_with_EffectSizes_Full(UKB_BrainXY(UKB_BrainXY.AgeAttend_2_0>=65,:),formula,XList,YList);
+
+UKB_FSF = readtable('UKB_FSF.csv','TreatAsEmpty','NA');
+UKB_BrainXY = innerjoin(UKB_FSF,UKB_BrainXY);
+
+UKB_BrainXY_F = UKB_BrainXY(UKB_BrainXY.Sex_0_0==0,:);
+UKB_BrainXY_F.menopause = (UKB_BrainXY_F.AgeAttend_2_0>=UKB_BrainXY_F.merged_3581);
+% UKB_BrainXY_F.menopause_1 = (UKB_BrainXY_F.menopause==0)
+
+formula = ['AgeAttend_2_0+AgeAttend_2_0^2+BMI_2_0+HeadMotion_2_0+SNR_2_0+',...
+    'Race_1+Race_2+Race_3+Race_4+Vol_WB_TIV_2_0+(1|Centre_0_0)'];
+XList = {'menopause'};
+results_menopause_360p = LMM_with_EffectSizes_Full(UKB_BrainXY_F,formula,XList,YList);
+
+UKB_BrainXY_F2 = UKB_BrainXY_F(UKB_BrainXY_F.merged_2814==0,:);
+
+formula = ['AgeAttend_2_0+AgeAttend_2_0^2+BMI_2_0+HeadMotion_2_0+SNR_2_0+',...
+    'Race_1+Race_2+Race_3+Race_4+Vol_WB_TIV_2_0+(1|Centre_0_0)'];
+XList = {'menopause'};
+results_menopause_noHRT_360p = LMM_with_EffectSizes_Full(UKB_BrainXY_F2,formula,XList,YList);
+
+formula = ['Sex_0_0+AgeAttend_2_0+AgeAttend_2_0^2+HeadMotion_2_0+SNR_2_0+',...
+    'Race_1+Race_2+Race_3+Race_4+Vol_WB_TIV_2_0+(1|Centre_0_0)'];
+XList = {'BMI_2_0'};
+results_bmi_360p = LMM_with_EffectSizes_Full(UKB_BrainXY,formula,XList,YList);
+formula = ['Sex_0_0+AgeAttend_2_0+AgeAttend_2_0^2+BMI_2_0+HeadMotion_2_0+SNR_2_0+',...
+    'Race_1+Race_2+Race_3+Race_4+(1|Centre_0_0)'];
+XList = {'Vol_WB_TIV_2_0'};
+results_tiv_360p = LMM_with_EffectSizes_Full(UKB_BrainXY,formula,XList,YList);
+results_demo_360p = [results_age_360p;results_sex_360p;results_bmi_360p;results_tiv_360p];
+
+
+
+
+
+results_pheno_adult_360p = LMM_with_EffectSizes_Full(UKB_BrainXY(UKB_BrainXY.AgeAttend_2_0<65,:),formula,XList,YList);
+results_pheno_older_360p = LMM_with_EffectSizes_Full(UKB_BrainXY(UKB_BrainXY.AgeAttend_2_0>=65,:),formula,XList,YList);
+
+XList = UKB_Lifestyle_0_0.Properties.VariableNames(95:end)';
+results_lifestyle_360p = LMM_with_EffectSizes_Full(UKB_BrainXY,formula,XList,YList);
+% writetable(results_lifestyle_7n,'modal_lifestyle_7n_matrix.txt','Delimiter' ,' ')
+
+
+
+
+% 7 networks
+UKB_BrainXY = innerjoin(innerjoin(UKB_Lifestyle_0_0,UKB_Outcomes_2_0),brain_data_7n);
+UKB_BrainXY(UKB_BrainXY.HeadMotion_2_0>0.2,:) = [];
+YList = brain_data_7n.Properties.VariableNames(2:end)'; % Y.Properties.RedSyniableNames(2:end)';
+formula = ['Sex_0_0+AgeAttend_2_0+AgeAttend_2_0^2+BMI_2_0+HeadMotion_2_0+SNR_2_0+',...
+    'Race_1+Race_2+Race_3+Race_4+Vol_WB_TIV_2_0+(1|Centre_0_0)'];
+XList = UKB_Outcomes_2_0.Properties.VariableNames(2:end)';
+results_pheno_7n = LMM_with_EffectSizes_Full(UKB_BrainXY,formula,XList,YList);
+
+
+
+results_pheno_adult_7n = LMM_with_EffectSizes_Full(UKB_BrainXY(UKB_BrainXY.AgeAttend_2_0<65,:),formula,XList,YList);
+results_pheno_older_7n = LMM_with_EffectSizes_Full(UKB_BrainXY(UKB_BrainXY.AgeAttend_2_0>=65,:),formula,XList,YList);
+
+
+
+% 360p
+UKB_BrainXY = innerjoin(innerjoin(UKB_Lifestyle_0_0,UKB_Outcomes_2_0),brain_data_360p);
+UKB_BrainXY(UKB_BrainXY.HeadMotion_2_0>0.2,:) = [];
+YList = brain_data_360p.Properties.VariableNames(2:end)'; % Y.Properties.RedSyniableNames(2:end)';
+XList = unique(results_pheno_7n.xname(results_pheno_7n.p<(0.001/(7*76)),:));
+formula = ['Sex_0_0+AgeAttend_2_0+AgeAttend_2_0^2+BMI_2_0+HeadMotion_2_0+SNR_2_0+',...
+    'Race_1+Race_2+Race_3+Race_4+Vol_WB_TIV_2_0+(1|Centre_0_0)'];
+results_pheno_360p = LMM_with_EffectSizes_Full(UKB_BrainXY,formula,XList,YList);
+
+
+
+%% Environment Association
+
+
+% 7 networks
+UKB_BrainXY = innerjoin(innerjoin(UKB_Lifestyle_0_0,UKB_Outcomes_2_0),brain_data_7n);
+UKB_BrainXY(UKB_BrainXY.HeadMotion_2_0>0.2,:) = [];
+UKB_BrainXY.AgeGap = UKB_BrainXY.AgeAttend_2_0 - UKB_BrainXY.AgeAttend_0_0;
+
+YList = brain_data_7n.Properties.VariableNames(2:end)'; % Y.Properties.RedSyniableNames(2:end)';
+
+XList = ['TDI_0_0';UKB_Lifestyle_0_0.Properties.VariableNames(95:end)'];
+formula = ['Sex_0_0+AgeGap+AgeAttend_2_0+AgeAttend_2_0^2+BMI_2_0+HeadMotion_2_0+SNR_2_0+',...
+    'Race_1+Race_2+Race_3+Race_4+Vol_WB_TIV_2_0+(1|Centre_0_0)'];
+results_lifestyle_7n = LMM_with_EffectSizes_Full(UKB_BrainXY,formula,XList,YList);
+
+
+% 360p
+parpool('local',20);
+
+a
+XList = unique(results_lifestyle_7n.xname(results_lifestyle_7n.p<(0.01/(7*67)),:));
+UKB_BrainXY = innerjoin(innerjoin(UKB_Lifestyle_0_0,UKB_Outcomes_2_0),brain_data_360p);
+UKB_BrainXY(UKB_BrainXY.HeadMotion_2_0>0.2,:) = [];
+YList = brain_data_360p.Properties.VariableNames(2:end)'; % Y.Properties.RedSyniableNames(2:end)';
+UKB_BrainXY.AgeGap = UKB_BrainXY.AgeAttend_2_0 - UKB_BrainXY.AgeAttend_0_0;
+formula = ['Sex_0_0+AgeGap+AgeAttend_2_0+AgeAttend_2_0^2+BMI_2_0+HeadMotion_2_0+SNR_2_0+',...
+    'Race_1+Race_2+Race_3+Race_4+Vol_WB_TIV_2_0+(1|Centre_0_0)'];
+results_lifestyle_360p = LMM_with_EffectSizes_Full(UKB_BrainXY,formula,XList,YList);
+% writetable(results_lifestyle_7n,'modal_lifestyle_7n_matrix.txt','Delimiter' ,' ')
+
+
+
+
+
+
+UKB_BrainXY = innerjoin(UKB_Biomarker,brain_data_7n);
+UKB_BrainXY(UKB_BrainXY.HeadMotion_2_0>0.2,:) = [];
+YList = brain_data_7n.Properties.VariableNames(2:end)'; 
+results_biomarker_7n = LMM_with_EffectSizes_Full(UKB_BrainXY,formula,XList,YList);
+
+
+%% Protein Association
+
+UKB_BrainMRICov = readtable('/public/home/zhangjie/ZJLab/UKBiobank_Project/data/table/UKB_BrainMRICov.txt');
+UKB_Protein_BL_withCov = readtable('/public/home/zhangjie/ZJLab/UKBiobank_Project/data/protein/UKB_Protein_BL_withCov.csv','TreatAsEmpty','NA');
+
+XList= {'APOA2','APOE','BCAN','BRK1','CEND1','CST5','GDF15','GFAP','IGFBP2','IL1RL1',...
+    'LDLR','LTBP2','MENT','NEFL','NPTX2','NPTXR','SNAP25','SYT1','TCN1','VGF'}';
+
+
+UKB_BrainXY = innerjoin(innerjoin(UKB_BrainMRICov,UKB_Protein_BL_withCov),brain_data_7n);
+UKB_BrainXY.AgeGap = UKB_BrainXY.AgeAttend_2_0 - UKB_BrainXY.AgeAttend_0_0;
+UKB_BrainXY(UKB_BrainXY.HeadMotion_2_0>0.2,:) = [];
+formula = ['Sex_0_0+AgeAttend_2_0+BMI_2_0+HeadMotion_2_0+SNR_2_0+AgeGap+',...
+    'fastingtime_0_0+WellID_0_0+',...
+    'Race_1+Race_2+Race_3+Race_4+Vol_WB_TIV_2_0+(1|Centre_0_0)'];
+YList = brain_data_7n.Properties.VariableNames(2:end)'; % Y.Properties.RedSyniableNames(2:end)';
+results_AD_protein_7n = LMM_with_EffectSizes_Full(UKB_BrainXY, formula, XList, YList);
+
+
+
+
+results_AD_protein_7n = results_AD_protein_7n(~isnan(results_AD_protein_7n.t),:);
+modal_protein_7n_sig = results_AD_protein_7n(results_AD_protein_7n.p<0.05/2920,:);
+protein_List = unique(results_AD_protein_7n.xname);
+modal_protein_7n_sig = results_AD_protein_7n(results_AD_protein_7n.p<0.05/1458,:);
+
+
+% 360p
+UKB_BrainXY = innerjoin(innerjoin(UKB_Lifestyle_0_0,UKB_Outcomes_2_0),brain_data_360p);
+UKB_BrainXY(UKB_BrainXY.HeadMotion_2_0>0.2,:) = [];
+YList = brain_data_360p.Properties.VariableNames(2:end)'; % Y.Properties.RedSyniableNames(2:end)';
+
+formula = ['Sex_0_0+AgeAttend_2_0+AgeAttend_2_0^2+BMI_2_0+HeadMotion_2_0+SNR_2_0+',...
+    'Race_1+Race_2+Race_3+Race_4+Vol_WB_TIV_2_0+(1|Centre_0_0)'];
+XList = unique(results_pheno_7n.xname(results_pheno_7n.p<5e-10,:));
+results_pheno_360p = LMM_with_EffectSizes_Full(UKB_BrainXY,formula,XList,YList);
+
+
+
+
+%% Biomarker Association
+
+UKB_BrainXY = innerjoin(UKB_Biomarker,brain_data_DSFC_360p);
+UKB_BrainXY(UKB_BrainXY.HeadMotion_2_0>0.2,:) = [];
+YList = brain_data_360p.Properties.VariableNames(2:end)'; 
+
+formula = ['AgeAttend_2_0+AgeAttend_2_0^2+Sex_0_0+BMI_2_0+HeadMotion_2_0+SNR_2_0+',...
+    'Race_1+Race_2+Race_3+Race_4+Vol_WB_TIV_2_0+(1|Centre_0_0)'];
+XList = UKB_Biomarker.Properties.VariableNames(95:end)'; 
+results_biomarker_7n = LMM_with_EffectSizes_Full(UKB_BrainXY,formula,XList,YList);
+
+%% PRS Association
+
+UKB_Basic = readtable('/public/home/zhangjie/ZJLab/UKBiobank_Project/data/table/UKB_Basic.csv');
+UKB_GeneCov = readtable('/public/home/zhangjie/ZJLab/UKBiobank_Project/data/gene/UKB_GeneCov.txt','Delimiter' ,',','TreatAsEmpty','NA');
+UKB_PRS = readtable('/public/home/zhangjie/ZJLab/UKBiobank_Project/data/table/UKB_PRS.csv');
+UKB_GeneCov.Properties.VariableNames{1} = 'eid';
+UKB_BrainMRICov = readtable('/public/home/zhangjie/ZJLab/UKBiobank_Project/data/table/UKB_BrainMRICov.txt');
+
+
+UKB_BrainXY = innerjoin(innerjoin(innerjoin(UKB_BrainMRICov,UKB_GeneCov),UKB_PRS),brain_data_7n);
+UKB_BrainXY(UKB_BrainXY.HeadMotion_2_0>0.2,:) = [];
+YList = brain_data_7n.Properties.VariableNames(2:end)'; 
+
+formula = ['AgeAttend_2_0+AgeAttend_2_0^2+Sex_0_0+BMI_2_0+HeadMotion_2_0+SNR_2_0+',...
+    'Vol_WB_TIV_2_0+x22000_0_0+x22009_0_1+x22009_0_2+x22009_0_3+',...
+    'x22009_0_4+x22009_0_5+x22009_0_6+x22009_0_7+x22009_0_8+x22009_0_9+x22009_0_10+(1|Centre_0_0)'];
+XList = UKB_PRS.Properties.VariableNames(2:end)'; 
+results_PRS_7n = LMM_with_EffectSizes_Full(UKB_BrainXY,formula,XList,YList);
+
+XList = {'alzheimer_s_disease_AD','schizophrenia_SCZ'};
+UKB_BrainXY = innerjoin(innerjoin(innerjoin(UKB_BrainMRICov,UKB_GeneCov),UKB_PRS),brain_data_360p);
+UKB_BrainXY(UKB_BrainXY.HeadMotion_2_0>0.2,:) = [];
+YList = brain_data_360p.Properties.VariableNames(2:end)'; 
+formula = ['AgeAttend_2_0+AgeAttend_2_0^2+Sex_0_0+BMI_2_0+HeadMotion_2_0+SNR_2_0+',...
+    'Vol_WB_TIV_2_0+x22000_0_0+x22009_0_1+x22009_0_2+x22009_0_3+',...
+    'x22009_0_4+x22009_0_5+x22009_0_6+x22009_0_7+x22009_0_8+x22009_0_9+x22009_0_10+(1|Centre_0_0)'];
+results_PRS_360p = LMM_with_EffectSizes_Full(UKB_BrainXY,formula,XList,YList);
+V = 'alzheimer_s_disease_AD';
+X = results_PRS_DSFC_360p.t(strcmp(results_PRS_DSFC_360p.xname,V)).*...
+    (results_PRS_DSFC_360p.p(strcmp(results_PRS_DSFC_360p.xname,V))<(0.05/360));
+[a, cb] = plot_cortical(parcel_to_surface(X([181:360,1:180]),'glasser_360_fsa5'),'color_range',[-6,6]);
+
+%% GWAS
+% load('/public/home/zhangjie/ZJLab/UKBiobank_Project/project/Structure_Function_Coupling_Aging/ukb_glasser_scfcc_2_0_mean_FA.mat', 'common_eid')
+load('/public/home/zhangjie/ZJLab/UKBiobank_Project/project/Structure_Function_Coupling_Aging/ukb_glasser_scfcc_2_0_streamline_count.mat','common_eid', 'SCDFCC_Mean', 'SCDFCC_SD')
+SFC_7n = netMean1D(SCDFCC_Mean,Yeo7MMP);
+DSFC_7n = netMean1D(SCDFCC_SD,Yeo7MMP);
+SFC_7n_Total = nanmean(SCDFCC_Mean,2);
+DSFC_7n_Total = nanmean(SCDFCC_SD,2);
+brain_data_7n = [array2table(common_eid),array2table([SFC_7n,SFC_7n_Total,DSFC_7n,DSFC_7n_Total])];
+brain_data_7n.Properties.VariableNames{1} = 'eid';
+
+brain_data_7n_tmp = innerjoin(UKB_Lifestyle_0_0(:,[1,77]),brain_data_7n);
+brain_data_7n_tmp(brain_data_7n_tmp.HeadMotion_2_0>0.2,:) = [];
+brain_data_7n_tmp = removevars(brain_data_7n_tmp, 'HeadMotion_2_0');
+
+nx = {'SFC_VN';'SFC_SMN';'SFC_DAN';'SFC_VAN';'SFC_LN';'SFC_FPN';'SFC_DMN';'SFC_Global';...
+    'DSFC_VN';'DSFC_SMN';'DSFC_DAN';'DSFC_VAN';'DSFC_LN';'DSFC_FPN';'DSFC_DMN';'DSFC_Global'};
+brain_data_7n_tmp.Properties.VariableNames(2:end) = nx;
+
+
+Xpheno = [array2table(brain_data_7n_tmp.eid),brain_data_7n_tmp];
+Xpheno.Properties.VariableNames{2} = 'IID';Xpheno.Properties.VariableNames{1} = 'FID';
+writetable(Xpheno,'/public/home/zhangjie/ZJLab/UKBiobank_Project/data/gene/UKB_dsfc_pheno_30TRfn.txt','Delimiter' ,' ')
+
+cd('/public/home/zhangjie/ZJLab/UKBiobank_Project/data/gene/')
+phenofile = '/public/home/zhangjie/ZJLab/UKBiobank_Project/data/gene/UKB_dsfc_pheno_30TRfn.txt';
+
+covarfile = '/public/home/zhangjie/ZJLab/UKBiobank_Project/data/gene/UKB_GeneCov_MRI.txt';
+covarname = ['Sex_0_0,AgeAttend_2_0,BMI_2_0,HeadMotion_2_0,Vol_WB_TIV_2_0,Centre_2_0,',...
+    'PC1-PC20'];
+
+
+PList = Xpheno.Properties.VariableNames(3:end)';
+parfor chr = 1:22
+    bfile_qc = ['/public/home/ISTBI_data/UKB/gene/v3/QCed/ukb_imp_chr',num2str(chr),'_v3'];
+    outfile = ['/public/home/zhangjie/ZJLab/UKBiobank_Project/project/',...
+        'Structure_Function_Coupling_Aging/GWAS_results/gwas_chr',num2str(chr),'_7n'];
+    plink_command = ...
+        ['/public/home/zhangjie/DataAnalysis/wxr_toolbox/toobox_other/plink2_linux_x86_64_20191030/plink2 ',...
+        '--bfile ',bfile_qc,' ',...
+        '--linear  hide-covar --debug ',...
+        '--pheno ',phenofile,' ',...
+        '--pheno-name ',strjoin(PList, ','),' '...
+        '--covar ',covarfile,' ',...
+        '--covar-name ',covarname,' ',...
+        '--covar-variance-standardize ',...
+        '--out ',outfile];
+    unix(plink_command);
+    disp(['GWAS of in chr',num2str(chr)])
+end
+cd('/public/home/zhangjie/ZJLab/UKBiobank_Project/project/Structure_Function_Coupling_Aging/GWAS_results/')
+
+parfor i = 1:size(PList,1)
+    
+    unix(['head -n 1 gwas_chr1_7n.',PList{i},'.glm.linear > gwas.',PList{i},'.glm.linear']);
+    unix(['tail -n +2 gwas_chr1_7n.',PList{i},'.glm.linear >> gwas.',PList{i},'.glm.linear']);
+    
+    for chr = 2:22
+        unix(['tail -n +2 gwas_chr',num2str(chr),'_7n.',PList{i},'.glm.linear >> gwas.',PList{i},'.glm.linear']);
+    end
+    
+    unix(sprintf(['sed -i "1s/.*/CHR\tPOS\tID\tREF\tALT\tPROVISIONAL_REF\tA1\tOMITTED\tA1_FREQ\tTEST\tOBS_CT\tBETA\tSE\tT_STAT\tP\tERRCODE/" gwas.%s.glm.linear'], PList{i}));
+
+    unix(['gzip gwas.',PList{i},'.glm.linear'])
+end
+
+
+
+%% Mediation
+
+UKB_BrainXY = innerjoin(innerjoin(innerjoin(UKB_Lifestyle_0_0,UKB_PRS),UKB_Outcomes_2_0),brain_data_7n_tmp);
+YList = {'x20016','x4526','x2178'};
+XList = UKB_PRS.Properties.VariableNames(2:end)';
+MList = brain_data_7n_tmp.Properties.VariableNames(2:end)'; % Y.Properties.RedSyniableNames(2:end)';
+Centre = [AsDummy(UKB_BrainXY.Centre_0_0)];
+Centre(:,[sum(Centre)<1000]) = [];
+COVList = {'AgeAttend_2_0','Sex_0_0','HeadMotion_2_0','SNR_2_0',...
+    'BMI_2_0','Race_1','Race_2','Race_3','Race_4','Vol_WB_TIV_2_0'};
+COV0 = [UKB_BrainXY{:,COVList},Centre];
+for m = 1:length(MList)
+    for i = 1:length(XList)
+        parfor j = 1:length(YList)
+            
+            % clear MediationRes
+            % === Data extraction ===
+            Xvar = UKB_BrainXY{:, XList{i}};Yvar = UKB_BrainXY{:, YList{j}};Mvar = UKB_BrainXY{:, MList{m}};
+            try
+                [X2, Y2, M2, COV2] = nanrm(Xvar, Yvar, Mvar, COV0);
+                % --- 检查有效行数 ---
+                if numel(X2) < 50
+                    warning('Too few valid samples after NaN removal.');
+                    continue;
+                end
+                
+                % --- Z-score 并处理常数列 ---
+                X2 = zscore(X2);
+                Y2 = zscore(Y2);
+                M2 = zscore(M2);
+                
+                if ~isempty(COV2)
+                    COV2 = zscore(COV2);
+                    COV2(:, all(isnan(COV2))) = [];
+                end
+                
+                % --- 检查是否存在NaN ---
+                if any(isnan(X2)) || any(isnan(Y2)) || any(isnan(M2))
+                    warning('NaN detected after zscore. Skipping...');
+                    continue;
+                end
+                
+                % --- 跳过空协变量 ---
+                if isempty(COV2)
+                    [paths, stats] = mediation(X2, Y2, M2, 'verbose', 'no');
+                else
+                    [paths, stats] = mediation(X2, Y2, M2, 'covs', COV2, 'verbose', 'no');
+                end
+                
+                MediateResult = [stats.paths; stats.mean; stats.ste; stats.t; stats.df; stats.p];
+                MediateResults(:,:,i,j,m) = MediateResult;
+                disp(['Mediate Analysis: X=',XList{i},' Y=',YList{j},' M=',MList{m}]);
+                
+            catch ME
+                warning('Mediation failed at i=%d, j=%d, m=%d: %s', i, j, m, ME.message);
+            end
+        end
+    end
+end
+MediateResults(:,:,:,3,2)
+x = squeeze(MediateResults(:,5,:,3,2));
+x = squeeze(MediateResults(6,5,:,3,:));
+
+
+Yeo7Names2 = {'VN','SMN','DAN','VAN','LN','FPN','DMN'};
+
+StatNames = {'path','mean','ste','t','df','p'};
+PathList = {'a','b','c','c''','ab'};
+numRows = length(XList)*length(YList)*length(MList)*length(PathList);
+
+X_col = cell(numRows,1);
+Y_col = cell(numRows,1);
+M_col = cell(numRows,1);
+Path_col = cell(numRows,1);
+StatCols = nan(numRows,6);  
+
+idx = 1;
+for xi = 1:length(XList)
+    for yi = 1:length(YList)
+        for mi = 1:length(MList)
+            for pi = 1:length(PathList)
+                X_col{idx} = XList{xi};
+                Y_col{idx} = YList{yi};
+                M_col{idx} = MList{mi};
+                Path_col{idx} = PathList{pi};
+                StatCols(idx,:) = MediateResults(:,pi,xi,yi,mi)'; % 注意转置，保证是1x6
+                idx = idx + 1;
+            end
+        end
+    end
+end
+
+% 构建 table
+T = table(X_col, M_col, Y_col, Path_col, StatCols(:,1), StatCols(:,2), StatCols(:,3), StatCols(:,4), StatCols(:,5), StatCols(:,6), ...
+    'VariableNames', {'X','M','Y','Path', StatNames{:}});
+
+head(T)
+
+writetable(T,'/public/home/zhangjie/ZJLab/UKBiobank_Project/project/Detecting_Compensation_Effects_of_Aging_Using_PID/mediation_results_7nx.txt')
+
+
+
+%% Structural Basis
+
+DK_info_ukb = readtable('/public/home/zhangjie/ZJLab/UKBiobank_Project/data/imaging/atlas/DK_info_ukb.csv');
+DK_Yeo7 = nan(84,1);
+DK_Yeo7(strcmp(DK_info_ukb.yeo_7, 'visual')) = 1;
+DK_Yeo7(strcmp(DK_info_ukb.yeo_7, 'somatomotor')) = 2;
+DK_Yeo7(strcmp(DK_info_ukb.yeo_7, 'dorsal attention')) = 3;
+DK_Yeo7(strcmp(DK_info_ukb.yeo_7, 'ventral attention')) = 4;
+DK_Yeo7(strcmp(DK_info_ukb.yeo_7, 'limbic')) = 5;
+DK_Yeo7(strcmp(DK_info_ukb.yeo_7, 'frontoparietal')) = 6;
+DK_Yeo7(strcmp(DK_info_ukb.yeo_7, 'default mode')) = 7;
+DK_Yeo7(69:84) = 8;
+
+UKB_BrainMRICov = readtable('/public/home/zhangjie/ZJLab/UKBiobank_Project/data/table/UKB_BrainMRICov.txt');
+UKB_BrainImagingVars = readtable('/public/home/zhangjie/ZJLab/UKBiobank_Project/data/table/UKB_BrainImagingVars.csv');
+UKB_GWC = readtable('/public/home/zhangjie/ZJLab/UKBiobank_Project/data/table/UKB_GWC.csv');
+UKB_BrainImagingVars = innerjoin(UKB_BrainImagingVars, UKB_GWC);
+UKB_BrainImagingVars_2_0 = UKB_BrainImagingVars(:,[1,find(contains(UKB_BrainImagingVars.Properties.VariableNames,'_2_0'))]);
+
+UKB_BrainXY = innerjoin(UKB_BrainMRICov,innerjoin(brain_data_7n_tmp,UKB_BrainImagingVars_2_0));
+y0y = UKB_BrainXY.Properties.VariableNames(contains(UKB_BrainXY.Properties.VariableNames,'Thickness'))';
+y0y = y0y([2:34,36:68]);
+
+
+Centre = [AsDummy(UKB_BrainXY.Centre_0_0)];
+
+COV0 = [UKB_BrainXY{:,[2,10,20,24,29,32,67:70,77,81,83]},Centre];
+COV0(:,13) = zscore( COV0(:,13));
+
+corr(UKB_BrainXY{:,y0y})
+
+x0 = UKB_BrainXY{:,brain_data_7n_tmp.Properties.VariableNames(2:end)};
+
+x1 = netMean1D(UKB_BrainXY{:,y0y},DK_Yeo7([1:3,5:34,35:38,40:68]));
+[r_thk p_thk] = partialcorr(x0,x1,COV0,'Rows','pairwise');
+
+y0y = UKB_BrainXY.Properties.VariableNames(contains(UKB_BrainXY.Properties.VariableNames,'Area'))';
+y0y = y0y([2:34,36:68]);
+x0 = UKB_BrainXY{:,brain_data_7n_tmp.Properties.VariableNames(2:end)};
+x1 = netMean1D(UKB_BrainXY{:,y0y},DK_Yeo7([1:3,5:34,35:38,40:68]));
+[r_area p_area] = partialcorr(x0,x1,COV0,'Rows','pairwise');
+diag(r_area(1:7,1:7))
+diag(r_area(8+(1:7),1:7))
+
+
+
+x1 = netMean1D(UKB_BrainXY{:,contains(UKB_BrainXY.Properties.VariableNames,'GWC')},DK_Yeo7([1:3,5:34,35:38,40:68]));
+[r_gwc p_gwc] = partialcorr(x0,x1,COV0,'Rows','pairwise');
+r_str = [diag(r_thk(1:7,1:7));diag(r_thk(8+(1:7),1:7));...
+    diag(r_area(1:7,1:7));diag(r_area(8+(1:7),1:7));...
+    diag(r_gwc(1:7,1:7));diag(r_gwc(8+(1:7),1:7))];
+
+p_str = [diag(p_thk(1:7,1:7));diag(p_thk(8+(1:7),1:7));...
+    diag(p_area(1:7,1:7));diag(p_area(8+(1:7),1:7));...
+    diag(p_gwc(1:7,1:7));diag(p_gwc(8+(1:7),1:7))];
+
+% x2 = netMeans1D(UKB_BrainXY{:,contains(UKB_BrainXY.Properties.VariableNames,'Syn')},ROI2ROI);
+% x3 = netMeans1D(UKB_BrainXY{:,contains(UKB_BrainXY.Properties.VariableNames,'Red')},ROI2ROI);
+
+x2 = UKB_BrainXY{:,contains(UKB_BrainXY.Properties.VariableNames,'Syn')}*dice_matrix;
+x3 = UKB_BrainXY{:,contains(UKB_BrainXY.Properties.VariableNames,'Red')}*dice_matrix;
+
+% x2(:,67:end)= [];x3(:,67:end)= [];x1(:,[4,39]) = [];
+
+[r_syn p_syn] = partialcorr(x1,x2,COV0,'Rows','pairwise');
+[r_red p_red] = partialcorr(x1,x3,COV0,'Rows','pairwise');
+% indx = [1:3,5:34,35:38,40:68];
+% rx = nan(68,68);rx(indx,indx) = r;
+% px = nan(68,68);px(indx,indx) = p;
+
+
+UKB_BrainXY = innerjoin(UKB_BrainMRICov,innerjoin(brain_data_7n_tmp,UKB_BrainImagingVars_2_0));
+XList = {'Thickness_WB_Total_2_0';'Area_WB_Total_2_0';'WMHyperInt_WB_Total_2_0';...
+    'FA_WB_Total_2_0';'MD_WB_Total_2_0';'MO_WB_Total_2_0';...
+    'ICVF_WB_Total_2_0';'ISOVF_WB_Total_2_0'};
+COVList = {'AgeAttend_2_0','Sex_0_0','HeadMotion_2_0','SNR_2_0',...
+    'BMI_2_0','Race_1','Race_2','Race_3','Race_4','Vol_WB_TIV_2_0'};
+COV = UKB_BrainXY{:,COVList};
+
+x1 = UKB_BrainXY{:,XList};
+[r_dwi p_dwi] = partialcorr(x0,x1,COV0,'Rows','pairwise');
+
+
+%% Longitudal Analysis
+
+load('/public/home/zhangjie/ZJLab/UKBiobank_Project/data/imaging/dMRI/ukb_glasser+s1_tract_3_0_mean_FA.mat')
+load('/public/home/zhangjie/ZJLab/UKBiobank_Project/data/imaging/dMRI/ukb_glasser+s1_tract_3_0_streamline_count.mat')
+load('/public/home/zhangjie/ZJLab/UKBiobank_Project/data/imaging/fMRI/BOLD/origin/ukb_glasser_ts_3_0.mat')
+
+[fmri2dwi,dwi2fmri] = idFinderNum(fMRI_Glasser_eID_3_0,dMRI_Glasser_S1_eID_3_0)
+fMRI_Glasser_TS_3_0  = fMRI_Glasser_TS_3_0(fmri2dwi,:);
+fMRI_Glasser_eID_3_0  = fMRI_Glasser_eID_3_0(fmri2dwi);
+connectome_streamline_count_10M_3_0 = connectome_streamline_count_10M_3_0(dwi2fmri,:);
+
+parfor i = 1:size(fMRI_Glasser_TS_3_0,1)
+    try
+        dsfc = compute_dSFC(fMRI_Glasser_TS_3_0{i}', connectome_streamline_count_10M_3_0{i}(1:360,1:360), 30, 1);
+        SCDFCC_Mean_3_0(i,:) = nanmean(dsfc,1);
+        SCDFCC_SD_3_0(i,:) = nanstd(dsfc,1);
+        disp(['Calculate D-SFC: sub-',num2str(fMRI_Glasser_eID_3_0(i))]);
+    catch
+        SCFDCC_Mean_3_0(i,:) = nan(360,1);
+        SCDFCC_SD_3_0(i,:) = nan(360,1);
+        disp(['Error: sub-',num2str(fMRI_Glasser_eID_3_0(i))]);
+    end
+    
+    
+end
+
+common_eid_3_0 = fMRI_Glasser_eID_3_0;
+save ukb_glasser_scdfc_3_0_streamline_count.mat SCFDCC_Mean_3_0 SCDFCC_SD_3_0 common_eid_3_0
+
+[b2f,f2b] = idFinderNum(common_eid,common_eid_3_0);
+
+
+
+SCDFCC_Mean_delta = SCFCC_Mean_3_0(f2b,:) - SCDFCC_Mean(b2f,:);
+SCDFCC_SD_delta = SCFCC_SD_3_0(f2b,:) - SCDFCC_SD(b2f,:);
+
+UKB_BrainMRICov = readtable('/public/home/zhangjie/ZJLab/UKBiobank_Project/data/table/UKB_BrainMRICov.txt');
+
+[h,p,ci,stats] = ttest2(SCFCC_SD_3_0(f2b,:),SCDFCC_SD(b2f,:));
+X = stats.tstat.*(p<0.05/360);
+max(X)
+min(X)
+[a, cb] = plot_cortical(parcel_to_surface(X([181:360,1:180]),'glasser_360_fsa5'),'color_range',[-167,167]);
+
+SFC_7n_delta = netMean1D(SCDFCC_Mean_delta,Yeo7MMP);
+DSFC_7n_delta = netMean1D(SCDFCC_SD_delta,Yeo7MMP);
+
+
+brain_data_7n_delta = [array2table(common_eid_3_0(f2b)),array2table(SFC_7n_delta),array2table(DSFC_7n_delta)];
+brain_data_7n_delta.Properties.VariableNames{1} = 'eid';
+brain_data_7n_delta(isnan(brain_data_7n_delta.SFC_7n_delta1),:) = [];
+brain_data_7n_delta = innerjoin(UKB_BrainMRICov,brain_data_7n_delta);
+brain_data_7n_delta(brain_data_7n_delta.HeadMotion_2_0>0.2,:) = [];
+brain_data_7n_delta(brain_data_7n_delta.HeadMotion_3_0>0.2,:) = [];
+YList = brain_data_7n_delta.Properties.VariableNames(95:end)'; 
+brain_data_7n_delta{:,YList} = brain_data_7n_delta{:,YList}./repmat(brain_data_7n_delta.AgeAttend_3_0 - brain_data_7n_delta.AgeAttend_2_0,1,length(YList));
+brain_data_7n_delta = brain_data_7n_delta(:,[1,95:end]);
+
+brain_data_360p_delta = [array2table(common_eid_3_0(f2b)),array2table(SCDFCC_Mean_delta),array2table(SCDFCC_SD_delta)];
+brain_data_360p_delta.Properties.VariableNames{1} = 'eid';
+brain_data_360p_delta(isnan(brain_data_360p_delta.SCDFCC_Mean_delta1),:) = [];
+brain_data_360p_delta = innerjoin(UKB_BrainMRICov,brain_data_360p_delta);
+brain_data_360p_delta(brain_data_360p_delta.HeadMotion_2_0>0.2,:) = [];
+brain_data_360p_delta(brain_data_360p_delta.HeadMotion_3_0>0.2,:) = [];
+YList = brain_data_360p_delta.Properties.VariableNames(95:end)'; 
+brain_data_360p_delta{:,YList} = brain_data_360p_delta{:,YList}./repmat(brain_data_360p_delta.AgeAttend_3_0 - brain_data_360p_delta.AgeAttend_2_0,1,length(YList));
+brain_data_360p_delta = brain_data_360p_delta(:,[1,95:end]);
+
+
+
+UKB_BrainXY = innerjoin(innerjoin(innerjoin(innerjoin(UKB_BrainMRICov,UKB_GeneCov)...
+    ,UKB_Outcomes_2_0),UKB_PRS),brain_data_7n_delta);
+YList = brain_data_7n_delta.Properties.VariableNames(2:end)'; 
+
+formula = ['AgeAttend_2_0+AgeAttend_2_0^2+Sex_0_0+BMI_2_0+HeadMotion_2_0+SNR_2_0+',...
+    'Vol_WB_TIV_2_0+x22000_0_0+x22009_0_1+x22009_0_2+x22009_0_3+',...
+    'x22009_0_4+x22009_0_5+x22009_0_6+x22009_0_7+x22009_0_8+x22009_0_9+x22009_0_10+(1|Centre_0_0)'];
+XList = UKB_PRS.Properties.VariableNames(2:end)'; 
+results_PRS_7n_delta = LMM_with_EffectSizes_Full(UKB_BrainXY,formula,XList,YList);
+
+
+formula = ['AgeAttend_2_0+AgeAttend_3_0+Sex_0_0+BMI_2_0+BMI_3_0+HeadMotion_2_0+HeadMotion_3_0+',...
+    'Race_1+Race_2+Race_3+Race_4+Vol_WB_TIV_2_0+Vol_WB_TIV_3_0+(1|Centre_0_0)'];
+XList = UKB_Lifestyle_0_0.Properties.VariableNames(95:end)';
+results_lifestyle_7n_delta = LMM_with_EffectSizes_Full(UKB_BrainXY,formula,XList,YList);
+
+XList = UKB_Outcomes_2_0.Properties.VariableNames(2:end)';
+formula = ['AgeAttend_2_0+AgeAttend_3_0+Sex_0_0+BMI_2_0+HeadMotion_2_0+HeadMotion_3_0+SNR_2_0+SNR_3_0+',...
+    'Race_1+Race_2+Race_3+Race_4+Vol_WB_TIV_2_0+(1|Centre_0_0)'];
+results_pheno_7n_delta = LMM_with_EffectSizes_Full(UKB_BrainXY,formula,XList,YList);
+
+
+
+
+%% APOE4
+
+
+UKB_BrainMRICov = readtable('/public/home/zhangjie/ZJLab/UKBiobank_Project/data/table/UKB_BrainMRICov.txt');
+APOE4_genetype = readtable('/public/home/zhangjie/ZJLab/UKBiobank_Project/data/gene/APOE4_genetype.txt')
+APOE4_genetype = removevars(APOE4_genetype, 'FID');
+APOE4_genetype = removevars(APOE4_genetype, {'PAT','MAT','SEX','PHENOTYPE'});
+
+UKB_GeneCov = readtable('/public/home/zhangjie/ZJLab/UKBiobank_Project/data/gene/UKB_GeneCov.txt','Delimiter' ,',','TreatAsEmpty','NA');
+UKB_GeneCov.Properties.VariableNames{1} = 'eid';
+% 7 networks
+UKB_BrainXY = innerjoin(innerjoin(innerjoin(innerjoin(UKB_BrainMRICov,UKB_GeneCov),APOE4_genetype),UKB_Outcomes_2_0),brain_data_7n);
+UKB_BrainXY(UKB_BrainXY.HeadMotion_2_0>0.2,:) = [];
+YList = brain_data_7n.Properties.VariableNames(2:end)'; % Y.Properties.RedSyniableNames(2:end)';
+
+XList = {'APOE4_dosage'};
+
+formula = ['AgeAttend_2_0+AgeAttend_2_0^2+Sex_0_0+BMI_2_0+HeadMotion_2_0+SNR_2_0+',...
+    'Vol_WB_TIV_2_0+x22000_0_0+x22009_0_1+x22009_0_2+x22009_0_3+',...
+    'x22009_0_4+x22009_0_5+x22009_0_6+x22009_0_7+x22009_0_8+x22009_0_9+x22009_0_10+(1|Centre_0_0)'];
+
+results_APOE4_7n = LMM_with_EffectSizes_Full(UKB_BrainXY,formula,XList,YList);
+results_APOE4_adult_7n = LMM_with_EffectSizes_Full(UKB_BrainXY(UKB_BrainXY.AgeAttend_2_0<65,:),formula,XList,YList);
+results_APOE4_older_7n = LMM_with_EffectSizes_Full(UKB_BrainXY(UKB_BrainXY.AgeAttend_2_0>=65,:),formula,XList,YList);
+
+
+
+XList = {'APOE4_dosage'};
+UKB_BrainXY = innerjoin(innerjoin(innerjoin(UKB_BrainMRICov,UKB_GeneCov),APOE4_genetype),brain_data_360p);
+UKB_BrainXY(UKB_BrainXY.HeadMotion_2_0>0.2,:) = [];
+YList = brain_data_360p.Properties.VariableNames(2:end)'; 
+formula = ['AgeAttend_2_0+AgeAttend_2_0^2+Sex_0_0+BMI_2_0+HeadMotion_2_0+SNR_2_0+',...
+    'Vol_WB_TIV_2_0+x22000_0_0+x22009_0_1+x22009_0_2+x22009_0_3+',...
+    'x22009_0_4+x22009_0_5+x22009_0_6+x22009_0_7+x22009_0_8+x22009_0_9+x22009_0_10+(1|Centre_0_0)'];
+results_APOE4_360p = LMM_with_EffectSizes_Full(UKB_BrainXY,formula,XList,YList);
+V = 'APOE4_dosage';
+X = results_APOE4_360p.t(strcmp(results_APOE4_360p.xname,V)).*...
+    (results_APOE4_360p.p(strcmp(results_APOE4_360p.xname,V))<(0.05/360));
+[a, cb] = plot_cortical(parcel_to_surface(X([181:360,1:180]),'glasser_360_fsa5'),'color_range',[-6,6]);
+[a, cb] = plot_cortical(parcel_to_surface(X(360+[181:360,1:180]),'glasser_360_fsa5'),'color_range',[-6,6]);
+
+AD_genetype = readtable('/public/home/zhangjie/ZJLab/UKBiobank_Project/data/gene/AD_genetype.txt','Delimiter' ,',','TreatAsEmpty','NA');
+AD_genetype = removevars(AD_genetype, 'FID');
+AD_genetype = removevars(AD_genetype, {'PAT','MAT','SEX','PHENOTYPE'});
+
+% 7 networks
+UKB_BrainXY = innerjoin(innerjoin(innerjoin(UKB_BrainMRICov,UKB_GeneCov),AD_genetype),brain_data_7n);
+UKB_BrainXY(UKB_BrainXY.HeadMotion_2_0>0.2,:) = [];
+YList = brain_data_7n.Properties.VariableNames(2:end)'; % Y.Properties.RedSyniableNames(2:end)';
+
+XList = AD_genetype.Properties.VariableNames(2:end)'; 
+
+formula = ['AgeAttend_2_0+AgeAttend_2_0^2+Sex_0_0+BMI_2_0+HeadMotion_2_0+SNR_2_0+',...
+    'Vol_WB_TIV_2_0+x22000_0_0+x22009_0_1+x22009_0_2+x22009_0_3+',...
+    'x22009_0_4+x22009_0_5+x22009_0_6+x22009_0_7+x22009_0_8+x22009_0_9+x22009_0_10+(1|Centre_0_0)'];
+
+results_AD_genes_7n = LMM_with_EffectSizes_Full(UKB_BrainXY,formula,XList,YList);
+
+
+
+UKB_Dementia = readtable('UKB_Dementia.csv','TreatAsEmpty','NA');
+UKB_BrainXY = innerjoin(innerjoin(innerjoin(UKB_BrainMRICov,UKB_GeneCov),UKB_Dementia),brain_data_360p);
+UKB_BrainXY(UKB_BrainXY.HeadMotion_2_0>0.2,:) = [];
+YList = brain_data_360p.Properties.VariableNames(2:end)'; 
+formula = ['AgeAttend_2_0+AgeAttend_2_0^2+Sex_0_0+BMI_2_0+HeadMotion_2_0+SNR_2_0+',...
+    'Vol_WB_TIV_2_0+Race_1+Race_2+Race_3+Race_4+(1|Centre_0_0)'];
+XList = {'DementiaState'};
+results_AD_360p = LMM_with_EffectSizes_Full(UKB_BrainXY,formula,XList,YList);
+V = 'DementiaState';
+X = results_AD_360p.t(strcmp(results_AD_360p.xname,V)).*...
+    (results_AD_360p.p(strcmp(results_AD_360p.xname,V))<(0.05/360));
+[a, cb] = plot_cortical(parcel_to_surface(X([181:360,1:180]),'glasser_360_fsa5'),'color_range',[-4.5,4.5]);
+[a, cb] = plot_cortical(parcel_to_surface(X(360+[181:360,1:180]),'glasser_360_fsa5'),'color_range',[-4.5,4.5]);
+
+
+
+
+
+XList = {'APOE4_dosage'};
+UKB_BrainXY = innerjoin(innerjoin(innerjoin(UKB_BrainMRICov,UKB_GeneCov),APOE4_genetype),brain_data_360p);
+UKB_BrainXY(UKB_BrainXY.HeadMotion_2_0>0.2,:) = [];
+YList = brain_data_360p.Properties.VariableNames(2:end)'; 
+formula = ['AgeAttend_2_0+AgeAttend_2_0^2+Sex_0_0+BMI_2_0+HeadMotion_2_0+SNR_2_0+',...
+    'Vol_WB_TIV_2_0+x22000_0_0+x22009_0_1+x22009_0_2+x22009_0_3+',...
+    'x22009_0_4+x22009_0_5+x22009_0_6+x22009_0_7+x22009_0_8+x22009_0_9+x22009_0_10+(1|Centre_0_0)'];
+
+results_APOE4_360p_win = results_APOE4_360p(1,:);
+results_APOE4_360p_win.win = 0;
+win_start = 45:5:82;
+for i = 1:7
+    UKB_BrainXY_win = UKB_BrainXY((UKB_BrainXY.AgeAttend_2_0>=win_start(i)) & (UKB_BrainXY.AgeAttend_2_0<win_start(i)+10),:);
+    results_tmp = LMM_with_EffectSizes_Full(UKB_BrainXY_win,formula,XList,YList);
+    results_tmp.win = repmat(win_start(i),720,1);
+    results_APOE4_360p_win = [results_APOE4_360p_win;results_tmp];
+end
+results_APOE4_360p_win(1,:) = [];
+
+V = 'SD';V2 = win_start(1);
+results_pheno_360p_win_x = results_APOE4_360p_win(contains(results_APOE4_360p_win.yname,V) & results_APOE4_360p_win.win==V2,:);
+
+X = results_pheno_360p_win_x.t.*(results_pheno_360p_win_x.p<(0.05/360));
+
+[a, cb] = plot_cortical(parcel_to_surface(X([181:360,1:180]),'glasser_360_fsa5'),'color_range',[-8,8]);
+
+
+UKB_BrainXY = innerjoin(innerjoin(innerjoin(UKB_BrainMRICov,UKB_GeneCov),APOE4_genetype),brain_data_7n);
+UKB_BrainXY(UKB_BrainXY.HeadMotion_2_0>0.2,:) = [];
+formula = ['SFC_7n1 ~ AgeAttend_2_0+APOE4_dosage+AgeAttend_2_0:APOE4_dosage+Sex_0_0+BMI_2_0+HeadMotion_2_0+SNR_2_0+',...
+    'Vol_WB_TIV_2_0+x22000_0_0+x22009_0_1+x22009_0_2+x22009_0_3+',...
+    'x22009_0_4+x22009_0_5+x22009_0_6+x22009_0_7+x22009_0_8+x22009_0_9+x22009_0_10+(1|Centre_0_0)'];
+
+fit = fitlme(UKB_BrainXY,formula);
+
+% 7n
+UKB_BrainXY = innerjoin(innerjoin(innerjoin(innerjoin(UKB_GeneCov,APOE4_genetype),UKB_Lifestyle_0_0),UKB_Outcomes_2_0),brain_data_7n);
+UKB_BrainXY(UKB_BrainXY.HeadMotion_2_0>0.2,:) = [];
+YList = [brain_data_7n.Properties.VariableNames(2:end)']; 
+
+X1List = {'APOE4_dosage'};
+X2List = UKB_Lifestyle_0_0.Properties.VariableNames(95:end)';
+
+formula = ['AgeAttend_2_0+Sex_0_0+BMI_2_0+HeadMotion_2_0+SNR_2_0+',...
+    'Vol_WB_TIV_2_0+x22000_0_0+x22009_0_1+x22009_0_2+x22009_0_3+',...
+    'x22009_0_4+x22009_0_5+x22009_0_6+x22009_0_7+x22009_0_8+x22009_0_9+x22009_0_10+(1|Centre_0_0)'];
+results_interact_7n = LMM_withFormula_Interact(UKB_BrainXY,formula,X1List,X2List,YList);
+
+
+X1List = {'APOE4_dosage'};
+X2List = {'AgeAttend_2_0'};
+
+formula = ['Sex_0_0+BMI_2_0+HeadMotion_2_0+SNR_2_0+',...
+    'Vol_WB_TIV_2_0+x22000_0_0+x22009_0_1+x22009_0_2+x22009_0_3+',...
+    'x22009_0_4+x22009_0_5+x22009_0_6+x22009_0_7+x22009_0_8+x22009_0_9+x22009_0_10+(1|Centre_0_0)'];
+results_interact_7n = LMM_withFormula_Interact(UKB_BrainXY,formula,X1List,X2List,YList);
+
+
+
+
+% 7n
+UKB_BrainXY = innerjoin(innerjoin(UKB_Lifestyle_0_0,UKB_Outcomes_2_0),brain_data_7n);
+UKB_BrainXY(UKB_BrainXY.HeadMotion_2_0>0.2,:) = [];
+YList = [brain_data_7n.Properties.VariableNames(2:end)']; 
+
+X1List = {'AgeAttend_2_0'};
+X2List = UKB_Lifestyle_0_0.Properties.VariableNames(95:end)';
+formula = ['Sex_0_0+BMI_2_0+HeadMotion_2_0+SNR_2_0+',...
+    'Vol_WB_TIV_2_0+Race_1+Race_2+Race_3+Race_4+(1|Centre_0_0)'];
+results_interact_7n = LMM_withFormula_Interact(UKB_BrainXY,formula,X1List,X2List,YList);
+
+% 7n
+UKB_BrainXY = innerjoin(innerjoin(UKB_Lifestyle_0_0,UKB_Outcomes_2_0),brain_data_7n);
+UKB_BrainXY(UKB_BrainXY.HeadMotion_2_0>0.2,:) = [];
+YList = [brain_data_7n.Properties.VariableNames(2:end)']; 
+
+X1List = {'EduAge_0_0'};
+X2List = {'AgeAttend_2_0'};
+formula = ['Sex_0_0+BMI_2_0+HeadMotion_2_0+SNR_2_0+',...
+    'Vol_WB_TIV_2_0+Race_1+Race_2+Race_3+Race_4+(1|Centre_0_0)'];
+results_interact_7n = LMM_withFormula_Interact(UKB_BrainXY,formula,X1List,X2List,YList);
+
+X1List = {'TDI_0_0'};
+X2List = {'AgeAttend_2_0'};
+formula = ['Sex_0_0+BMI_2_0+HeadMotion_2_0+SNR_2_0+',...
+    'Vol_WB_TIV_2_0+Race_1+Race_2+Race_3+Race_4+(1|Centre_0_0)'];
+results_interact_7n = LMM_withFormula_Interact(UKB_BrainXY,formula,X1List,X2List,YList);
+
+% 7n
+UKB_PRS = readtable('/public/home/zhangjie/ZJLab/UKBiobank_Project/data/table/UKB_PRS.csv');
+UKB_PRS.venous_thromboembolic_disease_VTE_1 = str2double(UKB_PRS.venous_thromboembolic_disease_VTE_1);
+
+UKB_BrainXY = innerjoin(innerjoin(innerjoin(innerjoin(UKB_GeneCov,UKB_PRS),UKB_Lifestyle_0_0),UKB_Outcomes_2_0),brain_data_7n);
+UKB_BrainXY(UKB_BrainXY.HeadMotion_2_0>0.2,:) = [];
+YList = [brain_data_7n.Properties.VariableNames(2:end)']; 
+
+X1List = {'alzheimer_s_disease_AD'};
+X2List = UKB_Lifestyle_0_0.Properties.VariableNames(95:end)';
+
+formula = ['AgeAttend_2_0+Sex_0_0+BMI_2_0+HeadMotion_2_0+SNR_2_0+',...
+    'Vol_WB_TIV_2_0+x22000_0_0+x22009_0_1+x22009_0_2+x22009_0_3+',...
+    'x22009_0_4+x22009_0_5+x22009_0_6+x22009_0_7+x22009_0_8+x22009_0_9+x22009_0_10+(1|Centre_0_0)'];
+results_interact_7n = LMM_withFormula_Interact(UKB_BrainXY,formula,X1List,X2List,YList);
