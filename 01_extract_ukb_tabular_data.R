@@ -59,13 +59,6 @@ basic_fields <- c(
   21000,  # Ethnic background
   20022,  # Birth weight
   1707,   # Handedness
-  4079,   # Blood pressure-related field used in preprocessing
-  20116,  # Smoking status
-  3456,   # Cigarettes-related field used in preprocessing
-  20117,  # Alcohol drinker status
-  1558,   # Alcohol intake frequency
-  1160,   # Sleep duration
-  1200,   # Sleeplessness / insomnia
   22189,  # Townsend deprivation index
   845     # Education-related field used in original preprocessing
 )
