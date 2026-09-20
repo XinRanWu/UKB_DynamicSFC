@@ -1,0 +1,65 @@
+Field ID,Description,Category_sub,Category,Abbreviation
+189,Townsend deprivation index,Household,Socio-demographics,Townsend Deprivation Index
+738,Average total household income before tax,Household,Socio-demographics,Household Income Before Tax
+845,Age completed full time education,Education,Socio-demographics,Age Completed Full Education
+20489,Felt loved as a child,Traumatic events,Mental health,Childhood Felt Loved
+20488,Physically abused by family as a child,Traumatic events,Mental health,Childhood Physical Abuse
+20487,Felt hated by family member as a child,Traumatic events,Mental health,Childhood Felt Hated
+20490,Sexually molested as a child,Traumatic events,Mental health,Childhood Sexual Abuse
+20491,Someone to take to doctor when needed as a child,Traumatic events,Mental health,Childhood Medical Care Access
+20522,Been in a confiding relationship as an adult,Traumatic events,Mental health,Adult Confiding Relationship
+20523,Physical violence by partner or ex-partner as an adult,Traumatic events,Mental health,Adult Partner Physical Violence
+20521,Belittlement by partner or ex-partner as an adult,Traumatic events,Mental health,Adult Partner Belittlement
+20524,Sexual interference by partner or ex-partner without consent as an adult,Traumatic events,Mental health,Adult Partner Sexual Abuse
+20525,Able to pay rent/mortgage as an adult,Traumatic events,Mental health,Adult Rent/Mortgage Capability
+20531,Victim of sexual assault,Traumatic events,Mental health,Victim of Sexual Assault
+20529,Victim of physically violent crime,Traumatic events,Mental health,Victim of Violent Crime
+20526,Been in serious accident believed to be life-threatening,Traumatic events,Mental health,Life-Threatening Accident
+20530,Witnessed sudden violent death,Traumatic events,Mental health,Witnessed Violent Death
+20528,Diagnosed with life-threatening illness,Traumatic events,Mental health,Life-Threatening Illness DX
+20527,Been involved in combat or exposed to war-zone,Traumatic events,Mental health,Combat / War-Zone Exposure
+20497,Repeated disturbing thoughts of stressful experience in past month,Traumatic events,Mental health,Disturbing Thoughts of Stress (1m)
+20498,Felt very upset when reminded of stressful experience in past month,Traumatic events,Mental health,Upset by Stress Reminders (1m)
+20495,Avoided activities or situations for previous stress in past month,Traumatic events,Mental health,Avoided Situations via Stress (1m)
+20496,Felt distant from other people in past month,Traumatic events,Mental health,Felt Distant from Others (1m)
+20494,Felt irritable or had angry outbursts in past month,Traumatic events,Mental health,Irritable/Angry Outbursts (1m)
+1767,Adopted as a child,Early life factors,Socio-demographics,Adopted as a Child
+20022,Birth weight,Early life factors,Socio-demographics,Birth Weight
+1677,Breastfed as a baby,Early life + Early life and reproductive factors,Early life factors,Breastfed as a Baby
+1787,Maternal smoking around birth,Early life factors,Socio-demographics,Maternal Smoking Around Birth
+1777,Part of a multiple birth,Early life factors,Socio-demographics,Part of a Multiple Birth
+20117,Alcohol drinker status,Alcohol,Lifestyle,Alcohol Drinker Status
+1558,Alcohol intake frequency.,Alcohol,Lifestyle,Alcohol Intake Frequency
+1568,Average weekly red wine intake,Alcohol,Lifestyle,Weekly Red Wine Intake
+1578,Average weekly champagne + white wine intake,Alcohol,Lifestyle,Weekly White Wine Intake
+1588,Average weekly beer + cider intake,Alcohol,Lifestyle,Weekly Beer / Cider Intake
+1598,Average weekly spirits intake,Alcohol,Lifestyle,Weekly Spirits Intake
+1608,Average weekly fortified wine intake,Alcohol,Lifestyle,Weekly Fortified Wine Intake
+4407,Average monthly red wine intake,Alcohol,Lifestyle,Monthly Red Wine Intake
+4418,Average monthly champagne + white wine intake,Alcohol,Lifestyle,Monthly White Wine Intake
+4429,Average monthly beer + cider intake,Alcohol,Lifestyle,Monthly Beer / Cider Intake
+4440,Average monthly spirits intake,Alcohol,Lifestyle,Monthly Spirits Intake
+4451,Average monthly fortified wine intake,Alcohol,Lifestyle,Monthly Fortified Wine Intake
+1309,Fresh fruit intake,Diet,Lifestyle,Fresh Fruit Intake
+1319,Dried fruit intake,Diet,Lifestyle,Dried Fruit Intake
+1289,Cooked vegetable intake,Diet,Lifestyle,Cooked Vegetable Intake
+1299,Salad / raw vegetable intake,Diet,Lifestyle,Raw Vegetable / Salad Intake
+1329,Oily fish intake,Diet,Lifestyle,Oily Fish Intake
+1339,Non-oily fish intake,Diet,Lifestyle,Non-Oily Fish Intake
+1349,Processed meat intake,Diet,Lifestyle,Processed Meat Intake
+1369,Beef intake,Diet,Lifestyle,Beef Intake
+1379,Lamb/mutton intake,Diet,Lifestyle,Lamb / Mutton Intake
+1389,Pork intake,Diet,Lifestyle,Pork Intake
+1438,Bread intake,Diet,Lifestyle,Bread Intake
+1458,Cereal intake,Diet,Lifestyle,Cereal Intake
+884,Number of days/week of moderate physical activity 10+ minutes,Physical activity,Lifestyle,Moderate Activity Freq (Days/w)
+894,Duration of moderate activity,Physical activity,Lifestyle,Moderate Activity Duration
+904,Number of days/week of vigorous physical activity 10+ minutes,Physical activity,Lifestyle,Vigorous Activity Freq (Days/w)
+914,Duration of vigorous activity,Physical activity,Lifestyle,Vigorous Activity Duration
+1160,Sleep duration,Sleep,Lifestyle,Sleep Duration
+1200,Sleeplessness / insomnia,Sleep,Lifestyle,Sleeplessness / Insomnia
+20116,Smoking status,Smoking,Lifestyle,Smoking Status
+1070,Time spent watching television (TV),Physical activity,Lifestyle,Time Watching TV
+1080,Time spent using computer,Physical activity,Lifestyle,Time Using Computer
+709,Number in household,Household,Socio-demographics,Household Size
+1031,Frequency of friend/family visits,Social support,Lifestyle,Friend / Family Visit Freq

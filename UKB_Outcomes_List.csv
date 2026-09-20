@@ -1,0 +1,74 @@
+Field ID,Description,Category_sub,Category,Abbreviation
+20016,Fluid intelligence score,Fluid intelligence / reasoning,Cognitive function,Fluid Intelligence Score
+6373,Number of puzzles correctly solved,Matrix pattern completion,Cognitive function,Num Puzzles Solved
+20018,Prospective memory result,Prospective memory,Cognitive function,Prospective Memory Result
+20023,Mean time to correctly identify matches,Reaction time,Cognitive function,Mean Match Reaction Time
+23324,Number of symbol digit matches made correctly,Symbol digit substitution,Cognitive function,Num Symbol Digit Matches
+21004,Number of puzzles correct,Tower rearranging,Cognitive function,Num Puzzles Correct
+6348,Duration to complete numeric path (trail #1),Trail making,Cognitive function,Duration Numeric Path (Trail 1)
+20197,Number of word pairs correctly associated,Paired associate learning,Cognitive function,Num Word Pairs Associated
+4282,Maximum digits remembered correctly,Numeric memory,Cognitive function,Max Digits Remembered
+4598,Ever depressed for a whole week,Mental health,Mental health,Ever Depressed Whole Week
+4653,Ever highly irritable/argumentative for 2 days,Mental health,Mental health,Ever Highly Irritable (2d)
+4642,Ever manic/hyper for 2 days,Mental health,Mental health,Ever Manic/Hyper (2d)
+4631,Ever unenthusiastic/disinterested for a whole week,Mental health,Mental health,Ever Unenthusiastic Whole Week
+4559,Family relationship satisfaction,Mental health,Mental health,Family Relation Satisf.
+1960,Fed-up feelings,Mental health,Mental health,Fed-up Feelings
+4581,Financial situation satisfaction,Mental health,Mental health,Financial Situation Satisf.
+2050,Frequency of depressed mood in last 2 weeks,Mental health,Mental health,Depressed Mood Freq (2w)
+2070,Frequency of tenseness / restlessness in last 2 weeks,Mental health,Mental health,Tenseness/Restless Freq (2w)
+2080,Frequency of tiredness / lethargy in last 2 weeks,Mental health,Mental health,Tiredness/Lethargy Freq (2w)
+2060,Frequency of unenthusiasm / disinterest in last 2 weeks,Mental health,Mental health,Unenthusiasm/Disinterest Freq (2w)
+4570,Friendships satisfaction,Mental health,Mental health,Friendships Satisf.
+2030,Guilty feelings,Mental health,Mental health,Guilty Feelings
+4526,Happiness,Mental health,Mental health,Happiness
+4548,Health satisfaction,Mental health,Mental health,Health Satisf.
+1940,Irritability,Mental health,Mental health,Irritability
+5663,Length of longest manic/irritable episode,Mental health,Mental health,Length Longest Manic Episode
+2020,"Loneliness, isolation",Mental health,Mental health,"Loneliness, Isolation"
+4609,Longest period of depression,Mental health,Mental health,Longest Period Depression
+5375,Longest period of unenthusiasm / disinterest,Mental health,Mental health,Longest Period Unenthusiasm
+1930,Miserableness,Mental health,Mental health,Miserableness
+1920,Mood swings,Mental health,Mental health,Mood Swings
+1970,Nervous feelings,Mental health,Mental health,Nervous Feelings
+4620,Number of depression episodes,Mental health,Mental health,Num Depression Episodes
+5386,Number of unenthusiastic/disinterested episodes,Mental health,Mental health,Num Unenthusiastic Episodes
+2040,Risk taking,Mental health,Mental health,Risk Taking
+2100,"Seen a psychiatrist for nerves, anxiety, tension or depression",Mental health,Mental health,Seen Psychiatrist for Nerves/Anx
+2090,"Seen doctor (GP) for nerves, anxiety, tension or depression",Mental health,Mental health,Seen GP for Nerves/Anx
+1950,Sensitivity / hurt feelings,Mental health,Mental health,Sensitivity / Hurt Feelings
+5674,Severity of manic/irritable episodes,Mental health,Mental health,Severity Manic Episodes
+2010,Suffer from 'nerves',Mental health,Mental health,Suffer from Nerves
+1990,Tense / 'highly strung',Mental health,Mental health,Tense / Highly Strung
+4537,Work/job satisfaction,Mental health,Mental health,Work/Job Satisf.
+1980,Worrier / anxious feelings,Mental health,Mental health,Worrier / Anxious Feelings
+2000,Worry too long after embarrassment,Mental health,Mental health,Worry Too Long After Embarrass
+134,Number of self-reported cancers,Medical conditions,Self-reported medical conditions,Num Self-Reported Cancers
+135,Number of self-reported non-cancer illnesses,Medical conditions,Self-reported medical conditions,Num Self-Reported Non-Cancers
+137,Number of treatments/medications taken,Medications,Self-reported medical conditions,Num Medications Taken
+2178,Overall health rating,General health,Self-reported medical conditions,Overall Health Rating
+2188,"Long-standing illness, disability or infirmity",General health,Self-reported medical conditions,Long-Standing Illness/Disab.
+2207,Wears glasses or contact lenses,Eyesight,Self-reported medical conditions,Wears Glasses/Contact Lenses
+2217,Age started wearing glasses or contact lenses,Eyesight,Self-reported medical conditions,Age Started Glasses/Contacts
+2247,Hearing difficulty/problems,Hearing,Self-reported medical conditions,Hearing Difficulty/Problems
+2296,Falls in the last year,General health,Self-reported medical conditions,Falls in Last Year
+2306,Weight change compared with 1 year ago,General health,Self-reported medical conditions,Weight Change vs 1 Year Ago
+2316,Wheeze or whistling in the chest in last year,Breathing,Self-reported medical conditions,Wheeze/Whistle in Chest (1y)
+2335,Chest pain or discomfort,Chest pain,Self-reported medical conditions,Chest Pain or Discomfort
+2443,Diabetes diagnosed by doctor,Medical conditions,Self-reported medical conditions,Diabetes DX by Doctor
+2453,Cancer diagnosed by doctor,Medical conditions,Self-reported medical conditions,Cancer DX by Doctor
+2463,Fractured/broken bones in last 5 years,Medical conditions,Self-reported medical conditions,Fractured/Broken Bones (5y)
+2966,Age high blood pressure diagnosed,Medical conditions,Self-reported medical conditions,Age High Blood Pressure DX
+3404,Neck/shoulder pain for 3+ months,Pain,Self-reported medical conditions,Neck/Shoulder Pain (3m+)
+3414,Hip pain for 3+ months,Pain,Self-reported medical conditions,Hip Pain (3m+)
+3571,Back pain for 3+ months,Pain,Self-reported medical conditions,Back Pain (3m+)
+3773,Knee pain for 3+ months,Pain,Self-reported medical conditions,Knee Pain (3m+)
+3799,Headaches for 3+ months,Pain,Self-reported medical conditions,Headaches (3m+)
+4700,Age cataract diagnosed,Eyesight,Self-reported medical conditions,Age Cataract DX
+4717,Shortness of breath walking on level ground,Breathing,Self-reported medical conditions,Short Breath Walking Level Ground
+4728,Leg pain on walking,Claudication and peripheral artery disease,Self-reported medical conditions,Leg Pain on Walking
+4803,Tinnitus,Hearing,Self-reported medical conditions,Tinnitus
+5452,Leg pain when standing still or sitting,Claudication and peripheral artery disease,Self-reported medical conditions,Leg Pain Standing/Sitting
+5463,Leg pain in calf/calves,Claudication and peripheral artery disease,Self-reported medical conditions,Leg Pain in Calf/Calves
+5474,Leg pain when walking uphill or hurrying,Claudication and peripheral artery disease,Self-reported medical conditions,Leg Pain Walking Uphill/Hurry
+5485,Leg pain when walking normally,Claudication and peripheral artery disease,Self-reported medical conditions,Leg Pain Walking Normally
