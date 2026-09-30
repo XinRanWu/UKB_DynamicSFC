@@ -23,6 +23,13 @@
 
 library(data.table)
 
+script_argument <- grep("^--file=", commandArgs(trailingOnly = FALSE), value = TRUE)
+script_dir <- if (length(script_argument) == 1) {
+  dirname(normalizePath(sub("^--file=", "", script_argument)))
+} else {
+  normalizePath(".")
+}
+
 # -------------------------------------------------------------------------
 # User configuration
 # -------------------------------------------------------------------------
@@ -60,7 +67,8 @@ basic_fields <- c(
   20022,  # Birth weight
   1707,   # Handedness
   22189,  # Townsend deprivation index
-  845     # Education-related field used in original preprocessing
+  845,    # Education-related field used in original preprocessing
+  26521   # Total intracranial volume
 )
 
 # Cognitive / behavioral outcomes explicitly referenced by the manuscript
@@ -80,6 +88,9 @@ outcome_fields <- c(
   20197   # Paired-associate learning / cognition-related field
 )
 
+outcome_manifest <- fread(file.path(script_dir, "UKB_Outcomes_List.csv"))
+outcome_fields <- sort(unique(c(outcome_fields, outcome_manifest[["Field ID"]])))
+
 # Lifestyle variables used in the original preprocessing script.
 # Keeping the complete study-specific lifestyle field set makes the extraction
 # transparent even when only a subset is used in a particular figure/model.
@@ -89,6 +100,9 @@ lifestyle_fields <- c(
   1458, 1468, 884, 894, 904, 914, 1160, 20116, 1070, 1080, 709, 1031, 6160,
   738, 20022, 20495, 20497, 22189
 )
+
+lifestyle_manifest <- fread(file.path(script_dir, "UKB_Lifestyle_List.csv"))
+lifestyle_fields <- sort(unique(c(lifestyle_fields, lifestyle_manifest[["Field ID"]])))
 
 # Genetic covariates used by downstream PRS/APOE models.
 genetic_covariate_fields <- c(

@@ -1,0 +1,21 @@
+name: Repository checks
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  lightweight-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: '4.2.3'
+      - name: Check repository structure and code conventions
+        run: python3 tests/check_repository.py
+      - name: Parse R scripts
+        run: |
+          Rscript -e "invisible(parse(file='01_extract_ukb_tabular_data.R'))"
+          Rscript -e "invisible(parse(file='08_run_mediation_analysis.R'))"
+          Rscript -e "invisible(parse(file='R_packages.R'))"

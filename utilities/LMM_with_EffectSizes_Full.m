@@ -1,4 +1,5 @@
 function results = LMM_with_EffectSizes_Full(tb, formula, x_list, y_list)
+    % Reusable mixed-model engine. Primary analyses remain executable scripts.
     all_needed_vars = unique([x_list(:)', y_list(:)', extractVarsFromFormula(formula)]);
     for v = 1:length(all_needed_vars)
         v_name = all_needed_vars{v};
@@ -19,7 +20,8 @@ function results = LMM_with_EffectSizes_Full(tb, formula, x_list, y_list)
         [j, k] = ind2sub([length(y_list), length(x_list)], idx);
         y_name = y_list{j};
         x_name = x_list{k};
-        curr_tb = tb(:, unique([y_name, x_name, extractVarsFromFormula(formula)]));
+        curr_tb = tb(:, unique([{y_name, x_name}, ...
+            extractVarsFromFormula(formula)], 'stable'));
         curr_tb.(y_name) = (curr_tb.(y_name) - nanmean(curr_tb.(y_name))) / nanstd(curr_tb.(y_name));
         is_binary_x = false;
         x_data = curr_tb.(x_name);
@@ -72,6 +74,8 @@ function results = LMM_with_EffectSizes_Full(tb, formula, x_list, y_list)
             disp(['Linear Mixed Model: ', y_list{j}, ' ~ ', x_list{k}, ' ']);
             
         catch ME
+            warning('Mixed model failed for %s ~ %s: %s', ...
+                y_name, x_name, ME.message);
             results_cell{idx} = {x_name, y_name, NaN, NaN, NaN, ...
                                  NaN, NaN, NaN, is_binary_x, NaN};
         end

@@ -1,4 +1,4 @@
-function results = run_demographic_age_associations(window_length)
+%% 04_run_demographic_age_associations.m
 % RUN_DEMOGRAPHIC_AGE_ASSOCIATIONS
 %
 % Reproduce the demographic and age-related mixed-effects analyses from the
@@ -19,11 +19,12 @@ function results = run_demographic_age_associations(window_length)
 %
 % -------------------------------------------------------------------------
 
-if nargin < 1 || isempty(window_length)
-    window_length = 30;
+if ~exist('config.m', 'file')
+    error('Copy config_example.m to config.m and configure local paths.');
 end
-
-run('00_config.m');
+run('config.m');
+addpath(fullfile(PROJECT_ROOT, 'utilities'));
+window_length = WINDOW_LENGTH;
 
 table_dir = fullfile(OUTPUT_DIR, 'analysis_tables');
 
@@ -37,13 +38,13 @@ end
 
 load(brain_file, 'brain_data_7n', 'brain_data_360p');
 
-basic_file = fullfile(DATA_ROOT, 'tabular', 'UKB_Basic.csv');
-mri_cov_file = fullfile(DATA_ROOT, 'tabular', 'UKB_BrainMRICov.csv');
+basic_file = BASIC_FILE;
+mri_cov_file = MRI_COVARIATE_FILE;
 
 UKB_Basic = readtable(basic_file);
 UKB_BrainMRICov = readtable(mri_cov_file);
 
-outcomes_file = fullfile(DATA_ROOT, 'tabular', 'UKB_Outcomes_2_0.csv');
+outcomes_file = OUTCOME_FILE;
 if exist(outcomes_file, 'file')
     UKB_Outcomes_2_0 = readtable(outcomes_file);
 else
@@ -233,5 +234,3 @@ save( ...
     sprintf('demographic_age_results_%dTR.mat', window_length)), ...
     'results', ...
     '-v7.3');
-
-end
