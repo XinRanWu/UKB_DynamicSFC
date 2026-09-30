@@ -1,0 +1,15 @@
+config.m
+data/
+derived/
+results/
+logs/
+*.mat
+*.fig
+*.png
+*.pdf
+*.out
+*.err
+.DS_Store
+.Rhistory
+.RData
+.Rproj.user/

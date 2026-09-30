@@ -1,4 +1,4 @@
-function results = run_phenotype_lifestyle_associations(window_length)
+%% 05_run_phenotype_lifestyle_associations.m
 % RUN_PHENOTYPE_LIFESTYLE_ASSOCIATIONS
 %
 % Reproduce phenotype, cognition/health, and lifestyle association analyses
@@ -13,11 +13,12 @@ function results = run_phenotype_lifestyle_associations(window_length)
 %
 % -------------------------------------------------------------------------
 
-if nargin < 1 || isempty(window_length)
-    window_length = 30;
+if ~exist('config.m', 'file')
+    error('Copy config_example.m to config.m and configure local paths.');
 end
-
-run('00_config.m');
+run('config.m');
+addpath(fullfile(PROJECT_ROOT, 'utilities'));
+window_length = WINDOW_LENGTH;
 
 table_dir = fullfile(OUTPUT_DIR, 'analysis_tables');
 
@@ -27,10 +28,10 @@ brain_file = fullfile( ...
 
 load(brain_file, 'brain_data_7n', 'brain_data_360p');
 
-UKB_Basic = readtable(fullfile(DATA_ROOT, 'tabular', 'UKB_Basic.csv'));
-UKB_BrainMRICov = readtable(fullfile(DATA_ROOT, 'tabular', 'UKB_BrainMRICov.csv'));
-UKB_Outcomes_2_0 = readtable(fullfile(DATA_ROOT, 'tabular', 'UKB_Outcomes_2_0.csv'));
-UKB_Lifestyle_0_0 = readtable(fullfile(DATA_ROOT, 'tabular', 'UKB_Lifestyle_0_0.csv'));
+UKB_Basic = readtable(BASIC_FILE);
+UKB_BrainMRICov = readtable(MRI_COVARIATE_FILE);
+UKB_Outcomes_2_0 = readtable(OUTCOME_FILE);
+UKB_Lifestyle_0_0 = readtable(LIFESTYLE_FILE);
 
 results = struct();
 
@@ -198,5 +199,3 @@ save( ...
     sprintf('phenotype_lifestyle_results_%dTR.mat', window_length)), ...
     'results', ...
     '-v7.3');
-
-end

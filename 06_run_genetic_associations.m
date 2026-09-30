@@ -1,4 +1,4 @@
-function results = run_genetic_associations(window_length)
+%% 06_run_genetic_associations.m
 % RUN_GENETIC_ASSOCIATIONS
 %
 % Reproduce PRS, APOE dosage, AD-genotype and age-by-genetic-risk analyses
@@ -17,11 +17,12 @@ function results = run_genetic_associations(window_length)
 %
 % -------------------------------------------------------------------------
 
-if nargin < 1 || isempty(window_length)
-    window_length = 30;
+if ~exist('config.m', 'file')
+    error('Copy config_example.m to config.m and configure local paths.');
 end
-
-run('00_config.m');
+run('config.m');
+addpath(fullfile(PROJECT_ROOT, 'utilities'));
+window_length = WINDOW_LENGTH;
 
 table_dir = fullfile(OUTPUT_DIR, 'analysis_tables');
 
@@ -31,22 +32,18 @@ brain_file = fullfile( ...
 
 load(brain_file, 'brain_data_7n', 'brain_data_360p');
 
-UKB_Basic = readtable(fullfile(DATA_ROOT, 'tabular', 'UKB_Basic.csv'));
-UKB_BrainMRICov = readtable(fullfile(DATA_ROOT, 'tabular', 'UKB_BrainMRICov.csv'));
+UKB_Basic = readtable(BASIC_FILE);
+UKB_BrainMRICov = readtable(MRI_COVARIATE_FILE);
 
-UKB_GeneCov = readtable( ...
-    fullfile(DATA_ROOT, 'genetics', 'UKB_GeneCov.csv'));
+UKB_GeneCov = readtable(GENETIC_COVARIATE_FILE);
 
-UKB_PRS = readtable( ...
-    fullfile(DATA_ROOT, 'genetics', 'UKB_PRS.tsv'), ...
+UKB_PRS = readtable(PRS_FILE, ...
     'FileType', ...
     'text');
 
-APOE4_genetype = readtable( ...
-    fullfile(DATA_ROOT, 'genetics', 'APOE4_genetype.txt'));
+APOE4_genetype = readtable(APOE_FILE);
 
-AD_genetype = readtable( ...
-    fullfile(DATA_ROOT, 'genetics', 'AD_genetype.txt'));
+AD_genetype = readtable(AD_VARIANT_FILE);
 
 % Harmonize participant-ID variable names where possible.
 UKB_GeneCov = harmonize_eid(UKB_GeneCov);
@@ -218,8 +215,6 @@ save( ...
     sprintf('genetic_results_%dTR.mat', window_length)), ...
     'results', ...
     '-v7.3');
-
-end
 
 
 function T = harmonize_eid(T)
