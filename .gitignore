@@ -1,4 +1,5 @@
-config.m
+config/config.m
+config/config.R
 data/
 derived/
 results/
@@ -13,3 +14,4 @@ logs/
 .Rhistory
 .RData
 .Rproj.user/
+*.rds

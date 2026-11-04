@@ -1,0 +1,53 @@
+%% Descriptive organization and age associations (Figures 2-3; Tables S2-S3)
+cfg = load_config();
+tables_file = cfg.analysis_coupling_table_file;
+if ~exist(tables_file,'file'), error('Run 02_prepare_analysis_tables.m first.'); end
+load(tables_file,'coupling_360','coupling_7n');
+basic = read_analysis_table(cfg.basic_file,'basic/MRI covariates');
+
+network_data = innerjoin_many(basic,coupling_7n);
+parcel_data = innerjoin_many(basic,coupling_360);
+network_data(network_data.HeadMotion_2_0>0.20,:) = [];
+parcel_data(parcel_data.HeadMotion_2_0>0.20,:) = [];
+network_data.AgeSq = zscore(network_data.AgeAttend_2_0).^2;
+parcel_data.AgeSq = zscore(parcel_data.AgeAttend_2_0).^2;
+
+network_outcomes = coupling_7n.Properties.VariableNames(2:end);
+parcel_outcomes = coupling_360.Properties.VariableNames(2:end);
+common = {'Race_1','Race_2','Race_3','Race_4','HeadMotion_2_0'};
+predictors = {'AgeAttend_2_0','AgeSq','Sex_0_0','BMI_2_0','Vol_WB_TIV_2_0'};
+covariate_sets = { ...
+    [common,{'AgeSq','Sex_0_0','BMI_2_0','Vol_WB_TIV_2_0'}], ...
+    [common,{'AgeAttend_2_0','Sex_0_0','BMI_2_0','Vol_WB_TIV_2_0'}], ...
+    [common,{'AgeAttend_2_0','AgeSq','BMI_2_0','SNR_2_0','Vol_WB_TIV_2_0'}], ...
+    [common,{'AgeAttend_2_0','AgeSq','Sex_0_0','SNR_2_0','Vol_WB_TIV_2_0'}], ...
+    [common,{'AgeAttend_2_0','AgeSq','Sex_0_0','BMI_2_0','SNR_2_0'}]};
+
+demographic_network = table(); demographic_parcel = table();
+for i = 1:numel(predictors)
+    network_piece = [ ...
+        run_lmm_grid(network_data,predictors(i),network_outcomes(startsWith(network_outcomes,'SFC_')), ...
+            covariate_sets{i},'Centre_0_0',struct('correction','bonferroni','family_size',7)); ...
+        run_lmm_grid(network_data,predictors(i),network_outcomes(startsWith(network_outcomes,'DSFC_')), ...
+            covariate_sets{i},'Centre_0_0',struct('correction','bonferroni','family_size',7))];
+    parcel_piece = [ ...
+        run_lmm_grid(parcel_data,predictors(i),parcel_outcomes(startsWith(parcel_outcomes,'SFC_')), ...
+            covariate_sets{i},'Centre_0_0',struct('correction','bonferroni','family_size',360)); ...
+        run_lmm_grid(parcel_data,predictors(i),parcel_outcomes(startsWith(parcel_outcomes,'DSFC_')), ...
+            covariate_sets{i},'Centre_0_0',struct('correction','bonferroni','family_size',360))];
+    demographic_network = [demographic_network;network_piece]; %#ok<AGROW>
+    demographic_parcel = [demographic_parcel;parcel_piece]; %#ok<AGROW>
+end
+demographic_network.predictor(strcmp(demographic_network.predictor,'AgeSq')) = {'AgeAttend_2_0_Quadratic'};
+demographic_parcel.predictor(strcmp(demographic_parcel.predictor,'AgeSq')) = {'AgeAttend_2_0_Quadratic'};
+
+descriptive = table(cfg.network_names(:), ...
+    mean(coupling_7n{:,startsWith(network_outcomes,'SFC_')},1,'omitnan')', ...
+    mean(coupling_7n{:,startsWith(network_outcomes,'DSFC_')},1,'omitnan')', ...
+    'VariableNames',{'network','mean_SFC','mean_DSFC'});
+
+output_dir = fullfile(cfg.output_root,'results','03_age');
+if ~exist(output_dir,'dir'), mkdir(output_dir); end
+writetable(descriptive,fullfile(output_dir,'network_descriptive.csv'));
+writetable(demographic_network,fullfile(output_dir,'demographic_network.csv'));
+writetable(demographic_parcel,fullfile(output_dir,'demographic_parcel.csv'));

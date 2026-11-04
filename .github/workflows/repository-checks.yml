@@ -15,7 +15,4 @@ jobs:
       - name: Check repository structure and code conventions
         run: python3 tests/check_repository.py
       - name: Parse R scripts
-        run: |
-          Rscript -e "invisible(parse(file='01_extract_ukb_tabular_data.R'))"
-          Rscript -e "invisible(parse(file='08_run_mediation_analysis.R'))"
-          Rscript -e "invisible(parse(file='R_packages.R'))"
+        run: Rscript tests/parse_all_R.R
