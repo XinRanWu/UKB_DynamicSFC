@@ -1,188 +1,124 @@
 # UKB Dynamic Structure Function Coupling
 
-Analysis code for the manuscript **Stable brain architecture but flexible dynamics: distinct structure-function coupling signatures link aging and genetic Alzheimer's risk to cognitive decline in 34,067 adults**.
+Reproducible analysis code for the manuscript on static and dynamic structure–function coupling in 34,067 UK Biobank participants.
 
-The repository is organized in manuscript order. Primary analyses are executable scripts. Small MATLAB functions are limited to reusable mixed-model utilities in `utilities/`.
+This release is organized in manuscript order. Each numbered script performs one analysis stage, reads only documented inputs, and writes inspectable outputs. Participant-level UK Biobank data are not included and must remain inside an approved UK Biobank environment.
 
-## What the pipeline does
+## Analysis sequence
 
-1. Extracts the required UK Biobank tabular fields from an authorized local export.
-2. Matches resting-state fMRI and diffusion MRI participants by `eid`.
-3. Computes regional SFC in sliding windows and summarizes each participant by:
-   - SFC: temporal mean of window-level regional SFC.
-   - DSFC: temporal standard deviation of window-level regional SFC.
-4. Builds Glasser-360 and Yeo-7 analysis tables.
-5. Runs demographic, age, phenotype, lifestyle, PRS, APOE, and AD-variant mixed models.
-6. Prepares network phenotypes for PLINK 2 GWAS.
-7. Runs statistical indirect-effect analyses for age/APOE, coupling, and fluid intelligence.
-8. Quantifies robustness to window length and structural-connectivity definition.
+1. `R/00_extract_ukb_fields.R` optionally extracts required fields from an authorized legacy UKB bulk export.
+2. `matlab/01_compute_primary_coupling.m` calculates parcel-level SFC and DSFC.
+3. `matlab/02_prepare_analysis_tables.m` creates Glasser-360 and Yeo-7 tables.
+4. `matlab/03_descriptive_and_age_associations.m` generates descriptive and age-association results.
+   `R/03_age_gamm_visualization.R` exports the adjusted network age curves used for visualization.
+5. `matlab/04_phenotype_associations.m` tests cognitive, mental-health, and physical-health phenotypes.
+6. `matlab/05_lifestyle_associations.m` tests environmental and lifestyle variables.
+7. `matlab/06_genetic_associations.m` tests PRS and APOE associations.
+8. `matlab/07_prepare_gwas_inputs.m` and `shell/07_run_gwas.sh` prepare and run GWAS.
+9. `R/08_lifestyle_indirect_effects.R` fits primary and SES-adjusted smoking/income indirect-effect models.
+10. `R/09_age_adprs_structural_equation_models.R` fits the age and AD-PRS structural equation models.
+11. `matlab/10_robustness_and_sensitivity.m` recalculates alternative coupling definitions and BOLD properties.
+    `matlab/10b_intrinsic_bold_adjustment.m` repeats age, phenotype, and AD-PRS models with matched AC1 or BOLD-variability covariates.
+12. `R/10_socioeconomic_association_sensitivity.R` repeats smoking/income network associations with SES covariates.
+13. `R/11_formal_sfc_dsfc_age_comparison.R` formally compares SFC and DSFC age slopes.
 
-Participant-level UK Biobank data are not distributed in this repository. Reproduction requires an approved UK Biobank project and locally prepared inputs that satisfy the contracts below.
+See [the manuscript-to-code map](docs/ANALYSIS_MAP.md) for outputs corresponding to each manuscript section.
 
-## Repository map
+## Primary definitions
 
-| File | Manuscript analysis | Main output |
-|---|---|---|
-| `00_run_matlab_pipeline.m` | Primary MATLAB stages 2-6 | Runs the primary workflow |
-| `01_extract_ukb_tabular_data.R` | UKB field extraction | Study-specific CSV files and field manifest |
-| `02_compute_sfc_dsfc_glasser.m` | Static and dynamic SFC | Participant x parcel SFC/DSFC MAT file |
-| `03_prepare_sfc_analysis_tables.m` | Glasser and Yeo-7 aggregation | MAT and CSV analysis tables |
-| `04_run_demographic_age_associations.m` | Age and demographic LMMs | Demographic/age result MAT file |
-| `05_run_phenotype_lifestyle_associations.m` | Cognitive, health, and lifestyle LMMs | Association result MAT file |
-| `06_run_genetic_associations.m` | PRS, APOE, and AD-variant LMMs | Genetic result MAT file |
-| `07_prepare_gwas_inputs.m` | GWAS phenotype preparation | PLINK phenotype TSV |
-| `07_run_gwas.sh` | Chromosome-wise GWAS | PLINK 2 result files |
-| `08_run_mediation_analysis.R` | Statistical indirect effects | Parameter-estimate CSV |
-| `09_run_robustness_analyses.m` | Window-length and SC-measure sensitivity | Robustness summary CSV |
+- Windowed FC is the Pearson correlation between regional BOLD time series.
+- Regional window-wise SFC is the Spearman correlation between a region's SC and FC profiles, excluding its self-connection.
+- The primary whole-profile calculation retains zero-valued SC entries and negative FC values.
+- SFC is the temporal mean of window-wise regional SFC.
+- DSFC is the temporal standard deviation of window-wise regional SFC.
+- The primary window contains 30 TRs and advances by 5 TRs.
 
-The original exploratory scripts remain recoverable from Git history but are removed from the current tree because they duplicated the cleaned workflow and contained obsolete cluster paths. `utilities/` contains the two mixed-model engines used by the main scripts.
+## Setup
 
-## Software
-
-- MATLAB with Statistics and Machine Learning Toolbox and Parallel Computing Toolbox.
-- R with `data.table`, `lmerTest`, and `lavaan`.
-- PLINK 2 for GWAS.
-- A SLURM cluster is optional; `submit_sfc_dsfc.slurm` is an example, not a requirement.
-
-Run `Rscript R_packages.R` to report whether the required R packages are installed and record `sessionInfo()` when generating the final release. The original files refer to both MATLAB R2018b and MATLAB 2025a; this version discrepancy is listed in `docs/REPRODUCIBILITY_NOTES.md` and should be resolved before publication.
-
-## Expected data layout
-
-The paths can be changed in `config.m`, but the default contract is:
-
-```text
-authorized_ukb_data/
-├── atlas/
-│   └── Yeo7MMP.mat
-├── imaging/
-│   ├── ukb_glasser_ts_2_0.mat
-│   └── ukb_glasser_s1_tract_2_0_streamline_count.mat
-├── tabular/
-│   ├── UKB_Basic.csv
-│   ├── UKB_BrainMRICov.csv
-│   ├── UKB_Outcomes_2_0.csv
-│   └── UKB_Lifestyle_0_0.csv
-└── genetics/
-    ├── UKB_GeneCov.csv
-    ├── UKB_GeneCov_MRI.txt
-    ├── UKB_PRS.tsv
-    ├── APOE4_genetype.txt
-    └── AD_genetype.txt
-```
-
-All participant tables must contain `eid`, or one unambiguous identifier that the relevant script can rename to `eid`.
-
-### Imaging MAT variables
-
-`ukb_glasser_ts_2_0.mat`:
-
-- `fMRI_Glasser_TS_2_0`: N x 1 cell array. Each cell is a 360 x time or time x 360 BOLD matrix.
-- `fMRI_Glasser_eID_2_0`: N x 1 participant IDs.
-
-`ukb_glasser_s1_tract_2_0_streamline_count.mat`:
-
-- `connectome_streamline_count_10M_2_0`: M x 1 cell array of structural-connectivity matrices.
-- `dMRI_Glasser_S1_eID_2_0`: M x 1 participant IDs.
-
-`Yeo7MMP.mat`:
-
-- `Yeo7MMP`: 360-element vector with integer labels 1-7.
-
-The computation script uses native MATLAB correlations and no longer depends on undocumented local functions such as `DynFunConn`, `SDFC`, `icatb_mat2vec`, or `parcel_to_surface`.
-
-## Quick start
-
-Clone the repository and create a private local configuration:
+Clone the repository and create private configuration files:
 
 ```bash
-cp config_example.m config.m
+cp config/config.example.m config/config.m
+cp config/config.example.R config/config.R
 ```
 
-Edit `DATA_ROOT`, optional robustness paths, worker count, and GWAS paths in `config.m`. The file is ignored by Git.
+Edit only the local paths and run settings in those two files. The populated files and all derived participant-level outputs are ignored by Git.
 
-If starting from a legacy UKB bulk table, extract the documented fields:
+Required software:
 
-```bash
-export UKB_BULK_FILE=/approved/path/ukb_bulk.csv
-export UKB_EXTRACT_DIR=/approved/path/tabular
-Rscript 01_extract_ukb_tabular_data.R
-```
+- MATLAB R2025a with Statistics and Machine Learning Toolbox and Parallel Computing Toolbox
+- R 4.2.3 with `data.table`, `lavaan`, `lme4`, `lmerTest`, `emmeans`, `dplyr`, `tidyr`, and `mgcv`
+- PLINK 2.0 for GWAS
 
-This extraction preserves the source column names. Harmonize the protected local tables to the analysis-ready names in `docs/DATA_DICTIONARY.md` before running MATLAB; do not upload participant rows.
+The required schemas are documented in [the data contract](docs/DATA_CONTRACT.md).
+The committed metadata files fix the tested families at 75 phenotypes, 56 environmental/lifestyle measures, and 90 PRSs, matching the revised supplementary tables.
 
-Run the primary MATLAB workflow from the repository root:
+## Run the primary workflow
+
+From the repository root, run:
 
 ```matlab
-run('00_run_matlab_pipeline.m')
+run('matlab/run_primary_pipeline.m')
 ```
 
-The default primary analysis uses a 30-TR window and a 5-TR step. To generate 40-TR and 50-TR sensitivity inputs, change `WINDOW_LENGTH` in the private `config.m`, run `02_compute_sfc_dsfc_glasser.m` for each setting, then run `03_prepare_sfc_analysis_tables.m` and `09_run_robustness_analyses.m`.
-
-Run mediation after the 30-TR parcel table exists:
+This executes stages 1–7 in manuscript order. The R stages are then run separately so their package versions and bootstrap seeds are recorded explicitly:
 
 ```bash
-export UKB_DATA_ROOT=/approved/path/authorized_ukb_data
-export UKB_DERIVED_DIR=/path/to/repository/derived
-Rscript 08_run_mediation_analysis.R
+Rscript R/08_lifestyle_indirect_effects.R
+Rscript R/09_age_adprs_structural_equation_models.R
+Rscript R/10_socioeconomic_association_sensitivity.R
+Rscript R/11_formal_sfc_dsfc_age_comparison.R
+Rscript R/99_record_session_info.R
 ```
 
-For a fast smoke test of the R script, reduce bootstrap draws without changing the committed default:
+After the MATLAB table-building stage, generate the Figure 2 age curves with `Rscript R/03_age_gamm_visualization.R`.
 
-```bash
-UKB_BOOTSTRAP_SAMPLES=20 Rscript 08_run_mediation_analysis.R
+Run sensitivity calculations with:
+
+```matlab
+run('matlab/10_robustness_and_sensitivity.m')
 ```
 
-## GWAS
-
-First run `07_prepare_gwas_inputs.m`. Then set the paths required by the shell script:
-
-```bash
-export PLINK2_BIN=/path/to/plink2
-export BFILE_PATTERN='/approved/path/qc/ukb_imp_chr%d'
-export PHENO_FILE=/path/to/derived/gwas/UKB_sfc_dsfc_phenotypes_30TR.tsv
-export COVAR_FILE=/approved/path/genetics/UKB_GeneCov_MRI.txt
-export OUTPUT_DIR=/path/to/derived/gwas/results
-bash 07_run_gwas.sh
-```
-
-The genotype QC thresholds reported in the manuscript are call rate >=95%, minor-allele frequency >=0.1%, and Hardy-Weinberg equilibrium P >=1e-5. Genotype QC itself is upstream of this repository and must be documented for the authorized UKB release used by the analyst.
+For cluster execution, adapt `slurm/submit_coupling.slurm` to the local scheduler. For GWAS, export the five paths required at the top of `shell/07_run_gwas.sh` and execute that script after genotype QC.
 
 ## Outputs
 
-Generated data are written under `derived/` by default and are ignored by Git:
+All generated content is written below `derived/`:
 
 ```text
 derived/
-├── ukb_glasser_sfc_dsfc_streamline_count_30TR.mat
-├── analysis_tables/
-├── association_results/
+├── coupling/
+├── tables/
+├── results/
+│   ├── 03_age/
+│   ├── 04_phenotypes/
+│   ├── 05_lifestyle/
+│   ├── 06_genetics/
+│   ├── 08_lifestyle_indirect_effects/
+│   ├── 09_age_adprs_sem/
+│   ├── 10_socioeconomic_sensitivity/
+│   └── 11_formal_age_comparison/
 ├── gwas/
-├── mediation_results/
-└── robustness_results/
+└── sensitivity/
 ```
 
-Each output uses participant IDs only within the authorized environment. Do not commit generated participant-level files.
+Estimation and publication plotting are separated. Figures should be regenerated from the exported CSV tables and MAT files; plotting choices therefore cannot change the fitted models or correction families.
 
-## Lightweight checks
+## Verification
 
-`python3 tests/check_repository.py` verifies the expected script set, English-only code text, absence of private absolute paths, shell syntax, and balanced MATLAB code blocks. GitHub Actions runs these checks and parses all maintained R scripts without requiring UK Biobank data.
+The repository includes checks that require no UK Biobank data:
 
-## Analysis conventions
+```bash
+python3 tests/check_repository.py
+Rscript tests/parse_all_R.R
+```
 
-- Participants are matched across imaging modalities using `eid`.
-- Functional connectivity is Pearson correlation within each sliding window.
-- Regional SFC is Spearman correlation between structural and functional connection profiles after excluding the regional self-connection.
-- Zero structural edges and negative functional edges are retained.
-- Functional correlations are not Fisher transformed before SFC estimation.
-- Participants with mean framewise displacement above 0.20 mm are removed in association scripts.
-- Continuous predictors and outcomes are standardized inside the mixed-model utility; binary 0/1 predictors retain their scale.
-- Assessment centre is modeled as a random intercept.
-- The scripts return raw model P values. Apply the exact family-wise correction described for each manuscript analysis when producing tables and figures.
+GitHub Actions runs the same checks on every push and pull request. They verify the expected manuscript-ordered file set, R syntax, shell syntax, and absence of private absolute paths.
 
-## Reproducibility notes
+## Data access
 
-Known manuscript/code decisions that require author confirmation are tracked in `docs/REPRODUCIBILITY_NOTES.md`. The most important is whether streamline counts were analyzed without weighting, as stated in the current Methods, or normalized by parcel-pair surface size, as done in the original calculation script. The cleaned default follows the current Methods and records the chosen setting in every SFC/DSFC output MAT file.
+UK Biobank participant data are available only to approved researchers through the UK Biobank Access Management System. This study used UK Biobank application 19542. No participant-level imaging, phenotype, lifestyle, or genetic data are distributed here.
 
-## Data availability
+## Citation
 
-UK Biobank data are available through the UK Biobank Access Management System to approved researchers. This repository does not redistribute participant-level imaging, phenotype, lifestyle, or genetic data. The study used UK Biobank application 19542.
+Please cite the final published article associated with this repository. The manuscript title and bibliographic details will be added after acceptance.

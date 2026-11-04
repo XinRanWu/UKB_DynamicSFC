@@ -1,0 +1,13 @@
+# Formal age x coupling type x network test requested by the reviewer.
+root <- normalizePath(file.path(dirname(sub("^--file=", "", grep("^--file=", commandArgs(FALSE), value=TRUE))), ".."))
+source(file.path(root,"R","functions","io.R")); source(file.path(root,"R","functions","coupling_comparison.R"))
+cfg <- load_project_config(root)
+coupling <- read_analysis_table(cfg$coupling_7n_file,"network coupling")
+basic <- read_analysis_table(cfg$basic_file,"basic/MRI covariates")
+result <- fit_age_coupling_comparison(coupling,basic)
+output <- file.path(cfg$derived_root,"results","11_formal_age_comparison")
+dir.create(output,recursive=TRUE,showWarnings=FALSE)
+utils::write.csv(result$omnibus,file.path(output,"type3_omnibus.csv"),row.names=FALSE)
+utils::write.csv(result$slopes,file.path(output,"network_age_slopes.csv"),row.names=FALSE)
+utils::write.csv(result$differences,file.path(output,"sfc_minus_dsfc_slopes.csv"),row.names=FALSE)
+saveRDS(result$fit,file.path(output,"mixed_model.rds"))
