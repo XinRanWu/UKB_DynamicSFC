@@ -11,7 +11,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: r-lib/actions/setup-r@v2
         with:
-          r-version: '4.2.3'
+          r-version: '4.0'
       - name: Check repository structure and code conventions
         run: python3 tests/check_repository.py
       - name: Parse R scripts
