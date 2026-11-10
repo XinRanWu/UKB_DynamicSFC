@@ -12,7 +12,8 @@ required = [
     "R/03_age_gamm_visualization.R",
     "R/08_lifestyle_indirect_effects.R", "R/09_age_adprs_structural_equation_models.R",
     "R/10_socioeconomic_association_sensitivity.R", "R/11_formal_sfc_dsfc_age_comparison.R",
-    "matlab/10_robustness_and_sensitivity.m", "matlab/10b_intrinsic_bold_adjustment.m", "shell/07_run_gwas.sh",
+    "matlab/10_robustness_and_sensitivity.m", "matlab/10b_intrinsic_bold_adjustment.m",
+    "shell/07_run_gwas.sh", "shell/07_merge_gwas_results.sh", "R/07_gwas_postprocess.R",
     "docs/ANALYSIS_MAP.md", "docs/DATA_CONTRACT.md"
 ]
 errors = [f"Missing required file: {p}" for p in required if not (root/p).is_file()]
@@ -23,6 +24,14 @@ for path in code:
     text = path.read_text(encoding="utf-8")
     if private.search(text): errors.append(f"Private absolute path: {path.relative_to(root)}")
     if han.search(text): errors.append(f"Non-English code text: {path.relative_to(root)}")
+
+genetics = (root/"matlab/06_genetic_associations.m").read_text(encoding="utf-8")
+if genetics.count("'family_size',90*7") != 2:
+    errors.append("PRS network correction must use 90 x 7 Bonferroni tests separately for SFC and DSFC.")
+
+gwas_shell = (root/"shell/07_run_gwas.sh").read_text(encoding="utf-8")
+for flag in ("--keep", "--maf 0.01", "--geno 0.05", "--hwe 1e-6", "PC1-PC20"):
+    if flag not in gwas_shell: errors.append(f"Final GWAS command is missing: {flag}")
 
 # Lightweight MATLAB structure check. This is not a replacement for MATLAB,
 # but catches accidental missing end statements without protected UKB data.
@@ -40,7 +49,8 @@ for path in root.rglob("*.m"):
             if stack: stack.pop()
             else: errors.append(f"Unmatched end: {path.relative_to(root)}:{number}")
     if stack: errors.append(f"Unclosed MATLAB blocks: {path.relative_to(root)} {stack}")
-subprocess.run(["bash","-n",str(root/"shell/07_run_gwas.sh")],check=True)
+for script in ("07_run_gwas.sh","07_merge_gwas_results.sh"):
+    subprocess.run(["bash","-n",str(root/"shell"/script)],check=True)
 if errors:
     print("\n".join(errors),file=sys.stderr); raise SystemExit(1)
 print(f"Repository checks passed ({len(code)} code files).")
