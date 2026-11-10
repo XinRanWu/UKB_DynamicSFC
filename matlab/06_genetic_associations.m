@@ -1,4 +1,4 @@
-%% PRS and APOE associations (Figure 5; Tables S10-S15)
+%% PRS and APOE associations (Figure 6; Tables S11-S16)
 cfg = load_config();
 load(cfg.analysis_coupling_table_file,'coupling_360','coupling_7n');
 basic = read_analysis_table(cfg.basic_file,'basic/MRI covariates');
@@ -33,9 +33,11 @@ end
 network_outcomes = coupling_7n.Properties.VariableNames(2:end);
 prs_network = [ ...
     run_lmm_grid(network_data,prs_predictors,network_outcomes(startsWith(network_outcomes,'SFC_')), ...
-        covariates,'Centre_0_0',struct('correction','fdr')); ...
+        covariates,'Centre_0_0',struct('correction','bonferroni','family_size',90*7)); ...
     run_lmm_grid(network_data,prs_predictors,network_outcomes(startsWith(network_outcomes,'DSFC_')), ...
-        covariates,'Centre_0_0',struct('correction','fdr'))];
+        covariates,'Centre_0_0',struct('correction','bonferroni','family_size',90*7))];
+prs_network.correction_method = repmat("Bonferroni within coupling type",height(prs_network),1);
+prs_network.correction_family_size = repmat(90*7,height(prs_network),1);
 
 % Regional follow-up of AD-PRS. Configure its exact column name locally if
 % the UKB release uses a different label.
