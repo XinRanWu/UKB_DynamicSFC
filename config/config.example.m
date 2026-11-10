@@ -64,10 +64,16 @@ cfg.schaefer_fsaverage_labels_variable = 'parcel_labels';
 cfg.fsaverage_spin_indices_file = '';
 cfg.fsaverage_spin_indices_variable = 'spin_indices';
 
-% GWAS inputs. Genotype QC is upstream and is described in the manuscript.
+% GWAS inputs. The source genetic-covariate table must contain UKB Field
+% 22021 and Fields 22009.1-22009.20 in addition to eid. The preparation
+% script writes the final phenotype, covariate, and --keep files below
+% derived/gwas; PLINK applies variant QC within that retained sample.
 cfg.plink2_bin = '/path/to/plink2';
 cfg.gwas_bfile_pattern = '/path/to/qc/ukb_imp_chr%d';
-cfg.gwas_covariate_file = fullfile(cfg.data_root, 'genetics', 'UKB_GeneCov_MRI.tsv');
+cfg.gwas_relatedness_variable = 'x22021_0_0';
+cfg.gwas_centre_variable = 'Centre_2_0';
+cfg.gwas_pc_variables = arrayfun(@(x)sprintf('x22009_0_%d',x),1:20, ...
+    'UniformOutput',false);
 
 if ~exist(cfg.output_root, 'dir')
     mkdir(cfg.output_root);
