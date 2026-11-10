@@ -12,7 +12,7 @@ The scripts follow the order of the Methods and Results in the revised manuscrip
 | 4 | Cognitive, mental-health, and physical-health associations | `matlab/04_phenotype_associations.m` | network screen and parcel follow-up |
 | 5 | Environmental and lifestyle associations | `matlab/05_lifestyle_associations.m` | network screen and parcel follow-up |
 | 6 | PRS and APOE associations | `matlab/06_genetic_associations.m` | network PRS and parcel AD/APOE results |
-| 7 | GWAS | `matlab/07_prepare_gwas_inputs.m`, `shell/07_run_gwas.sh` | PLINK phenotypes and chromosome results |
+| 7 | GWAS | `matlab/07_prepare_gwas_inputs.m`, `shell/07_run_gwas.sh`, `shell/07_merge_gwas_results.sh`, `R/07_gwas_postprocess.R` | PLINK inputs, chromosome and merged results, summary tables, Manhattan plots, and QQ plots |
 | 8 | Smoking/income statistical indirect effects | `R/08_lifestyle_indirect_effects.R` | primary and SES-adjusted lavaan outputs |
 | 9 | Age and AD-PRS structural equation models | `R/09_age_adprs_structural_equation_models.R` | SFC and DSFC lavaan outputs |
 | 10 | Methodological sensitivity analyses | `matlab/10_robustness_and_sensitivity.m` | alternative estimates and correspondence tables |
