@@ -1,6 +1,6 @@
 # Reproducibility and provenance
 
-The released workflow is aligned to the manuscript dated 4 November 2026. It replaces exploratory scripts that mixed data preparation, modeling, and plotting and that contained private cluster paths. Those scripts remain recoverable from Git history but are not part of the executable release.
+The released workflow is aligned to the manuscript dated 8 November 2026. It replaces exploratory scripts that mixed data preparation, modeling, and plotting and that contained private cluster paths. Those scripts remain recoverable from Git history but are not part of the executable release.
 
 ## Fixed analytical decisions
 
@@ -11,6 +11,8 @@ The released workflow is aligned to the manuscript dated 4 November 2026. It rep
 - Participants with mean framewise displacement above 0.20 mm are excluded from association analyses.
 - Continuous outcomes and continuous predictors are standardized within each model sample. Binary predictors remain 0/1.
 - Assessment centre is a random intercept in the primary MATLAB LMMs.
+- Network-level phenotype, lifestyle, and PRS screens use Bonferroni families defined in the manuscript. For PRS, 90 scores × 7 networks are corrected separately for SFC and DSFC. Parcel-wise follow-ups are corrected across 360 parcels.
+- GWAS is restricted to unrelated imaging participants (Field 22021 = 0). Variant MAF, missingness, and HWE filters are recalculated after sample restriction, and the models include centered age squared, categorical imaging centre, and 20 UK Biobank ancestry PCs.
 - Statistical indirect effects are estimated in lavaan with covariates explicitly included in the mediator and outcome equations. No mediator residualization is used.
 
 ## Sensitivity definitions
@@ -19,4 +21,4 @@ The released workflow is aligned to the manuscript dated 4 November 2026. It rep
 
 ## Software
 
-The manuscript reports MATLAB R2025a, R 4.2.3, and PLINK 2.0. R package requirements are `data.table`, `lavaan`, `lme4`, `lmerTest`, `emmeans`, `dplyr`, `tidyr`, and `mgcv`. Run `sessionInfo()` after each final R analysis and archive the text with the corresponding outputs.
+The manuscript reports MATLAB R2025a, R 4.0, and PLINK 2.0. R package requirements are `data.table`, `ggplot2`, `ggrepel`, `patchwork`, `lavaan`, `lme4`, `lmerTest`, `emmeans`, `dplyr`, `tidyr`, and `mgcv`. Run `sessionInfo()` after each final R analysis and archive the text with the corresponding outputs.
